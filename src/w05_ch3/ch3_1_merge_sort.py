@@ -40,6 +40,20 @@ def merge(array, left, mid, right):
             vis.add_to_merged(right_index, merged)
             right_index += 1
 
+    # 한쪽이 먼저 소진되면 반대쪽의 남은 원소는 이미 정렬된 순서 그대로입니다.
+    if left_index <= mid:
+        vis.exhausted("right")
+        while left_index <= mid:
+            merged.append(array[left_index])
+            vis.add_to_merged(left_index, merged)
+            left_index += 1
+    else:
+        vis.exhausted("left")
+        while right_index <= right:
+            merged.append(array[right_index])
+            vis.add_to_merged(right_index, merged)
+            right_index += 1
+
 
 while va.running():
     data = va.next_data(__file__, data_file=DATA_FILE)
