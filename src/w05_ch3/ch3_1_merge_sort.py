@@ -7,17 +7,21 @@ vis = va.visualizer("merge_sort")
 
 
 def merge_sort(array):
-    # Merge Sort의 병합 단계에서는 두 절반이 이미 정렬되어 있다고 가정합니다.
-    count = len(array)
-    mid = count // 2
-    array[:mid] = sorted(array[:mid])
-    array[mid:] = sorted(array[mid:])
-
-    # 왼쪽 #0..#mid-1와 오른쪽 #mid..#count-1를 병합할 준비를 합니다.
-    vis.prepare_merge(0, mid - 1, count - 1)
-    merge(array, 0, mid - 1, count - 1)
+    # 전체 배열 범위를 전달하고, 실제 정렬은 범위 함수가 담당하게 합니다.
+    merge_sort_range(array, 0, len(array) - 1)
 
     return array
+
+
+def merge_sort_range(array, left, right):
+    # 현재는 병합 단계를 설명하기 위해 두 절반이 이미 정렬되었다고 가정합니다.
+    mid = (left + right) // 2
+    array[left : mid + 1] = sorted(array[left : mid + 1])
+    array[mid + 1 : right + 1] = sorted(array[mid + 1 : right + 1])
+
+    # 왼쪽 #left..#mid와 오른쪽 #mid+1..#right를 병합할 준비를 합니다.
+    vis.prepare_merge(left, mid, right)
+    merge(array, left, mid, right)
 
 
 def merge(array, left, mid, right):
