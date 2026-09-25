@@ -15,8 +15,19 @@ def merge_sort(array):
 
     # 왼쪽 #0..#mid-1와 오른쪽 #mid..#count-1를 병합할 준비를 합니다.
     vis.prepare_merge(0, mid - 1, count - 1)
+    merge(array, 0, mid - 1, count - 1)
 
     return array
+
+
+def merge(array, left, mid, right):
+    # 왼쪽은 #left..#mid, 오른쪽은 #mid+1..#right인 두 정렬된 부분 배열입니다.
+    vis.start_merge(left, mid, right)
+    left_index = left
+    right_index = mid + 1
+
+    # 두 부분 배열의 가장 앞 원소부터 비교를 시작합니다.
+    vis.compare(left_index, right_index)
 
 
 while va.running():
