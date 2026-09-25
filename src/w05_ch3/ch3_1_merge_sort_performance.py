@@ -60,13 +60,11 @@ def merge(array, left, mid, right):
 
     # 한쪽이 먼저 소진되면 반대쪽의 남은 원소는 이미 정렬된 순서 그대로입니다.
     if left_index <= mid:
-        while left_index <= mid:
-            merged.append(array[left_index])
-            left_index += 1
+        # 남은 왼쪽 구간은 이미 정렬되어 있으므로, 슬라이스로 한꺼번에 추가합니다.
+        merged.extend(array[left_index : mid + 1])
     else:
-        while right_index <= right:
-            merged.append(array[right_index])
-            right_index += 1
+        # 남은 오른쪽 구간도 이미 정렬되어 있으므로, 슬라이스로 한꺼번에 추가합니다.
+        merged.extend(array[right_index : right + 1])
 
     # 완성된 임시 배열을 원래 배열의 병합 구간으로 되돌립니다.
     array[left : right + 1] = merged
