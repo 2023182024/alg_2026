@@ -40,6 +40,29 @@ def merge_sort_range(array, left, right):
     vis.pop()
 
 
+def insertion_sort(array, left, right):
+    """array의 left..right 구간을 삽입 정렬한다. right도 정렬 범위에 포함한다."""
+    vis.start_insertion(left, right)
+
+    # #left 하나만 있는 구간은 이미 정렬되어 있으므로, 다음 원소부터 삽입합니다.
+    for index in range(left + 1, right + 1):
+        value = array[index]
+        vis.mark_end(index, pick=True)
+        position = index - 1
+
+        # value보다 큰 값을 한 칸씩 오른쪽으로 밀어 value가 들어갈 자리를 만듭니다.
+        while position >= left and array[position] > value:
+            array[position + 1] = array[position]
+            vis.shift(position, position + 1)
+            position -= 1
+
+        # 비어 있는 position + 1 위치에 처음에 빼 둔 값을 넣습니다.
+        array[position + 1] = value
+        vis.shift(index, position + 1, pick=True)
+
+    vis.finish_insertion(left, right)
+
+
 def merge(array, left, mid, right):
     # 왼쪽은 #left..#mid, 오른쪽은 #mid+1..#right인 두 정렬된 부분 배열입니다.
     vis.start_merge(left, mid, right)
