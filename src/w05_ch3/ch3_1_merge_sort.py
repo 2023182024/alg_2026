@@ -7,7 +7,15 @@ vis = va.visualizer("merge_sort")
 
 
 def merge_sort(array):
-    # 다음 커밋부터 두 정렬된 부분 배열을 병합하는 과정을 추가합니다.
+    # Merge Sort의 병합 단계에서는 두 절반이 이미 정렬되어 있다고 가정합니다.
+    count = len(array)
+    mid = count // 2
+    array[:mid] = sorted(array[:mid])
+    array[mid:] = sorted(array[mid:])
+
+    # 왼쪽 #0..#mid-1와 오른쪽 #mid..#count-1를 병합할 준비를 합니다.
+    vis.prepare_merge(0, mid - 1, count - 1)
+
     return array
 
 
