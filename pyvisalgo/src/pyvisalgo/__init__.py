@@ -12,6 +12,7 @@ from .visualizers.array import (
     InsertionSortVisualizer,
     MergeBattleVisualizer,
     MergeSortVisualizer,
+    MergeSortHeroWarsVisualizer,
     QuickSortVisualizer,
     RadixLsdVisualizer,
     RadixMsdWordsVisualizer,
@@ -48,6 +49,8 @@ def visualizer(name, enabled=True):
         return MergeSortVisualizer("Merge Sort")
     if name == "merge_battle":
         return MergeBattleVisualizer("Merge Battle")
+    if name == "merge_sort_hero_wars":
+        return MergeSortHeroWarsVisualizer("Merge Sort: Hero Wars")
     if name == "quick_sort":
         return QuickSortVisualizer("Quick Sort")
     if name == "quick_sort_partition":
@@ -87,6 +90,7 @@ __all__ = [
     "KnightsTourVisualizer",
     "MergeSortVisualizer",
     "MergeBattleVisualizer",
+    "MergeSortHeroWarsVisualizer",
     "QuickSortVisualizer",
     "RadixLsdVisualizer",
     "RadixMsdWordsVisualizer",
