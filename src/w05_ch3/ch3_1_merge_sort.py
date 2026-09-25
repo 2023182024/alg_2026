@@ -25,6 +25,12 @@ def merge_sort_range(array, left, right):
         vis.pop()
         return
 
+    # 2~4개처럼 작은 구간은 다시 반으로 나누고 병합하는 대신 삽입 정렬로 끝냅니다.
+    if right - left + 1 <= 4:
+        insertion_sort(array, left, right)
+        vis.pop()
+        return
+
     # 가운데를 기준으로 왼쪽과 오른쪽 범위를 각각 더 작은 문제로 나눕니다.
     mid = (left + right) // 2
     vis.split(left, mid, right)
@@ -32,11 +38,7 @@ def merge_sort_range(array, left, right):
     merge_sort_range(array, mid + 1, right)
 
     # 두 재귀 호출이 끝난 뒤에는 두 절반이 각각 정렬된 상태가 됩니다.
-    # 왼쪽의 마지막 값이 오른쪽의 첫 값보다 작거나 같으면 이미 하나의 정렬된 구간입니다.
-    if array[mid] <= array[mid + 1]:
-        vis.skip_merge(left, mid, right)
-    else:
-        merge(array, left, mid, right)
+    merge(array, left, mid, right)
     vis.pop()
 
 
