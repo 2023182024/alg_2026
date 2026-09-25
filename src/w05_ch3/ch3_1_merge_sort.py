@@ -28,6 +28,16 @@ def merge(array, left, mid, right):
 
     # 두 부분 배열의 가장 앞 원소부터 비교를 시작합니다.
     vis.compare(left_index, right_index)
+    merged = []
+    if array[left_index] <= array[right_index]:
+        # 값이 같을 때도 왼쪽을 먼저 복사하면 기존 순서가 유지됩니다.
+        merged.append(array[left_index])
+        vis.add_to_merged(left_index, merged)
+        left_index += 1
+    else:
+        merged.append(array[right_index])
+        vis.add_to_merged(right_index, merged)
+        right_index += 1
 
 
 while va.running():
