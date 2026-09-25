@@ -54,6 +54,11 @@ def merge(array, left, mid, right):
             vis.add_to_merged(right_index, merged)
             right_index += 1
 
+    # 완성된 임시 배열을 원래 배열의 병합 구간으로 되돌립니다.
+    vis.end_merge()
+    vis.copy_back(left, right, merged)
+    array[left : right + 1] = merged
+
 
 while va.running():
     data = va.next_data(__file__, data_file=DATA_FILE)
