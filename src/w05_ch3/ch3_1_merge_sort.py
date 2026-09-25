@@ -32,7 +32,11 @@ def merge_sort_range(array, left, right):
     merge_sort_range(array, mid + 1, right)
 
     # 두 재귀 호출이 끝난 뒤에는 두 절반이 각각 정렬된 상태가 됩니다.
-    merge(array, left, mid, right)
+    # 왼쪽의 마지막 값이 오른쪽의 첫 값보다 작거나 같으면 이미 하나의 정렬된 구간입니다.
+    if array[mid] <= array[mid + 1]:
+        vis.skip_merge(left, mid, right)
+    else:
+        merge(array, left, mid, right)
     vis.pop()
 
 
