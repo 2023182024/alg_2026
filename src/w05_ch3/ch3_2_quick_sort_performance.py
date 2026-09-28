@@ -1,6 +1,9 @@
 import perf
 
 
+INSERTION_SORT_THRESHOLD = 4
+
+
 def quick_sort(array):
     # 성능 측정용 기본 Quick Sort는 배열 전체를 재귀적으로 partition합니다.
     if len(array) > 0:
@@ -16,6 +19,24 @@ def quick_sort_range(array, left, right):
     pivot_index = partition(array, left, right)
     quick_sort_range(array, left, pivot_index - 1)
     quick_sort_range(array, pivot_index + 1, right)
+
+
+def quick_sort_final_insertion(array):
+    # 작은 구간을 남긴 상태까지 partition한 뒤, 배열 전체를 한 번 삽입 정렬합니다.
+    if len(array) > 0:
+        quick_sort_range_until(array, 0, len(array) - 1)
+        insertion_sort(array, 0, len(array) - 1)
+    return array
+
+
+def quick_sort_range_until(array, left, right):
+    # 임계값 이하의 작은 구간은 정렬하지 않고 그대로 남겨 둡니다.
+    if right - left + 1 <= INSERTION_SORT_THRESHOLD:
+        return
+
+    pivot_index = partition(array, left, right)
+    quick_sort_range_until(array, left, pivot_index - 1)
+    quick_sort_range_until(array, pivot_index + 1, right)
 
 
 def partition(array, left, right):
@@ -42,6 +63,19 @@ def partition(array, left, right):
 
     array[left], array[q] = array[q], array[left]
     return q
+
+
+def insertion_sort(array, left, right):
+    # partition을 마친 배열은 거의 정렬되어 있으므로, 한 번의 삽입 정렬로 마무리합니다.
+    for index in range(left + 1, right + 1):
+        value = array[index]
+        position = index - 1
+
+        while position >= left and array[position] > value:
+            array[position + 1] = array[position]
+            position -= 1
+
+        array[position + 1] = value
 
 
 if __name__ == "__main__":
