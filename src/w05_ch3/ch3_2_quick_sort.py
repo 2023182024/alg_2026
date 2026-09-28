@@ -5,6 +5,11 @@ import pyvisalgo as va
 
 DATA_FILE = "data/n_log_n_sort.json"
 INSERTION_SORT_THRESHOLD = 4
+# ninther는 표본 9개를 비교하므로 작은 배열에서는 median-of-three보다 비용이 큽니다.
+# Go 표준 sort는 50개 이상, LLVM libc++ std::sort는 128개 초과일 때 ninther를 사용합니다.
+# GCC libstdc++ std::sort는 ninther 대신 median-of-three와 introsort fallback을 사용합니다.
+# 이 수업에서는 40~60개 시각화 데이터에서도 ninther가 한 번 나타나도록 40으로 정합니다.
+NINTHER_THRESHOLD = 40
 
 vis = va.visualizer("quick_sort")
 
@@ -32,7 +37,7 @@ def quick_sort_range(array, left, right):
         return
 
     vis.push(left, right)
-    pivot_index = partition_median_of_three(array, left, right)
+    pivot_index = partition_ninther(array, left, right)
 
     # pivot은 제자리가 확정되었으므로, 양쪽 범위만 다시 quick sort 합니다.
     quick_sort_range(array, left, pivot_index - 1)
@@ -129,6 +134,56 @@ def partition_median_of_three(array, left, right):
 
     # 기존 partition()은 pivot이 left에 있다고 가정합니다.
     # 선택된 median을 left로 옮긴 다음, p/q partition 과정은 그대로 재사용합니다.
+    vis.move_pivot_to_left(pivot_index, left)
+    if pivot_index != left:
+        array[left], array[pivot_index] = array[pivot_index], array[left]
+    return partition(array, left, right)
+
+
+def partition_ninther(array, left, right):
+    """9개 표본의 median-of-three를 다시 median으로 골라 partition한다."""
+    # 작은 구간에서는 9개 표본을 비교하는 비용보다 median-of-three가 더 단순하고 빠릅니다.
+    if right - left + 1 < NINTHER_THRESHOLD:
+        return partition_median_of_three(array, left, right)
+
+    # 양 끝, 가운데, 그리고 그 사이를 고르게 포함하도록 9개 표본을 고릅니다.
+    # count가 정확히 9이면 left부터 right까지의 9개 원소가 모두 표본이 됩니다.
+    step = (right - left) // 8
+    middle = (left + right) // 2
+    samples = [
+        left, left + step, left + step * 2,
+        middle - step, middle, middle + step,
+        right - step * 2, right - step, right,
+    ]
+    vis.show_ninther_candidates(samples)
+
+    def median_index(first, second, third):
+        """세 원소를 바꾸지 않고, 값의 중간인 원소의 index를 반환한다."""
+        # index만 바꾸므로 아래 비교 과정은 pivot을 고르기 위한 관찰일 뿐,
+        # 원래 배열의 순서에는 영향을 주지 않습니다.
+        vis.compare_pivot_candidates(first, second)
+        if array[first] > array[second]:
+            first, second = second, first
+
+        vis.compare_pivot_candidates(second, third)
+        if array[second] > array[third]:
+            second, third = third, second
+
+        vis.compare_pivot_candidates(first, second)
+        if array[first] > array[second]:
+            first, second = second, first
+        return second
+
+    # 세 묶음에서 각각 median을 하나씩 고릅니다.
+    first_median = median_index(*samples[0:3])
+    second_median = median_index(*samples[3:6])
+    third_median = median_index(*samples[6:9])
+
+    # 세 median의 median이 최종 ninther pivot입니다.
+    pivot_index = median_index(first_median, second_median, third_median)
+    vis.choose_ninther_pivot(pivot_index)
+
+    # 기존 partition()은 pivot이 left에 있다고 가정하므로, 선택된 값을 옮긴 뒤 재사용합니다.
     vis.move_pivot_to_left(pivot_index, left)
     if pivot_index != left:
         array[left], array[pivot_index] = array[pivot_index], array[left]
