@@ -70,8 +70,14 @@ def partition(array, left, right):
         vis.accept_left(p)
         vis.accept_right(q)
 
-    # pivot을 제자리로 옮기는 마지막 교환은 다음 단계에서 처리합니다.
-    return left
+    # q의 위치는 pivot이 들어갈 경계입니다. pivot을 q와 교환해 제자리에 놓습니다.
+    if left != q:
+        vis.swap(left, q, pivot=True)
+        array[left], array[q] = array[q], array[left]
+
+    # pivot 왼쪽은 pivot 이하, 오른쪽은 pivot보다 큰 값으로 partition이 끝났습니다.
+    vis.fix(q)
+    return q
 
 
 while va.running():
