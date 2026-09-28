@@ -17,6 +17,12 @@ def quick_sort(array):
 def quick_sort_range(array, left, right):
     # 앞으로 이 함수는 left..right 범위를 partition하고, 양쪽을 다시 정렬합니다.
     # 지금은 전체 범위 하나를 대상으로 partition 함수의 역할만 연결합니다.
+    if left > right:
+        return
+    if left == right:
+        vis.single(left)
+        return
+
     vis.push(left, right)
     pivot_index = partition(array, left, right)
     vis.pop()
