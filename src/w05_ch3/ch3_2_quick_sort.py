@@ -12,6 +12,10 @@ def quick_sort(array):
     if len(array) > 0:
         quick_sort_range(array, 0, len(array) - 1)
 
+        # 작은 구간은 아직 정렬하지 않았으므로, 마지막에 배열 전체를 삽입 정렬합니다.
+        # partition을 충분히 거친 배열에서는 삽입 정렬이 짧은 이동만 수행하게 됩니다.
+        insertion_sort(array, 0, len(array) - 1)
+
     # 가장 바깥쪽 재귀 호출까지 끝나면 배열 전체가 정렬된 상태입니다.
     vis.finish()
     return array
@@ -20,17 +24,9 @@ def quick_sort(array):
 def quick_sort_range(array, left, right):
     # 앞으로 이 함수는 left..right 범위를 partition하고, 양쪽을 다시 정렬합니다.
     # 지금은 전체 범위 하나를 대상으로 partition 함수의 역할만 연결합니다.
-    if left > right:
-        return
-    if left == right:
-        vis.single(left)
-        return
-
-    # 작은 구간은 partition을 반복하기보다 삽입 정렬로 바로 처리합니다.
+    # 작은 구간은 partition하지 않고 남겨 둡니다.
+    # 모든 큰 구간의 partition이 끝난 뒤 배열 전체를 삽입 정렬해 마무리합니다.
     if right - left + 1 <= INSERTION_SORT_THRESHOLD:
-        vis.push(left, right)
-        insertion_sort(array, left, right)
-        vis.pop()
         return
 
     vis.push(left, right)
