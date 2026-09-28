@@ -32,7 +32,7 @@ def quick_sort_range(array, left, right):
         return
 
     vis.push(left, right)
-    pivot_index = partition_random(array, left, right)
+    pivot_index = partition_median_of_three(array, left, right)
 
     # pivot은 제자리가 확정되었으므로, 양쪽 범위만 다시 quick sort 합니다.
     quick_sort_range(array, left, pivot_index - 1)
@@ -97,6 +97,42 @@ def partition(array, left, right):
     # pivot 왼쪽은 pivot 이하, 오른쪽은 pivot보다 큰 값으로 partition이 끝났습니다.
     vis.fix(q)
     return q
+
+
+def partition_median_of_three(array, left, right):
+    """left, middle, right 후보의 중간값을 pivot으로 삼아 partition한다."""
+    middle = (left + right) // 2
+    vis.show_pivot_candidates(left, middle, right)
+
+    # 배열 원소 자체를 미리 교환하지 않고, 세 후보를 가리키는 index만 정렬합니다.
+    # first <= second <= third가 되면 second가 세 값의 median 위치입니다.
+    first = left
+    second = middle
+    third = right
+
+    vis.compare_pivot_candidates(first, second)
+    if array[first] > array[second]:
+        first, second = second, first
+
+    vis.compare_pivot_candidates(second, third)
+    if array[second] > array[third]:
+        second, third = third, second
+
+    # 두 번째 비교에서 더 작은 값이 second 자리에 들어왔다면,
+    # first와 다시 비교해 세 후보의 가운데 값을 second로 맞춥니다.
+    vis.compare_pivot_candidates(first, second)
+    if array[first] > array[second]:
+        first, second = second, first
+
+    pivot_index = second
+    vis.choose_median_pivot(pivot_index)
+
+    # 기존 partition()은 pivot이 left에 있다고 가정합니다.
+    # 선택된 median을 left로 옮긴 다음, p/q partition 과정은 그대로 재사용합니다.
+    vis.move_pivot_to_left(pivot_index, left)
+    if pivot_index != left:
+        array[left], array[pivot_index] = array[pivot_index], array[left]
+    return partition(array, left, right)
 
 
 def partition_random(array, left, right):
