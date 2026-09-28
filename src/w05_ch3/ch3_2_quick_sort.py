@@ -23,8 +23,12 @@ def quick_sort_range(array, left, right):
 
 
 def partition(array, left, right):
-    # partition은 pivot을 제자리로 보내고, 그 index를 반환할 예정입니다.
-    # 아직 pivot을 선택하거나 원소를 교환하지 않았으므로 left를 그대로 반환합니다.
+    # 이 예제에서는 맨 왼쪽 원소를 pivot으로 선택합니다.
+    # 이후 p와 q가 이 값을 기준으로 반대 방향에서 탐색합니다.
+    pivot = array[left]
+    vis.set_pivot(left)
+
+    # 아직 원소를 교환하지 않았으므로 pivot은 원래 위치에 있습니다.
     return left
 
 
