@@ -1,3 +1,5 @@
+import random
+
 import pyvisalgo as va
 
 
@@ -30,7 +32,7 @@ def quick_sort_range(array, left, right):
         return
 
     vis.push(left, right)
-    pivot_index = partition(array, left, right)
+    pivot_index = partition_random(array, left, right)
 
     # pivot은 제자리가 확정되었으므로, 양쪽 범위만 다시 quick sort 합니다.
     quick_sort_range(array, left, pivot_index - 1)
@@ -95,6 +97,22 @@ def partition(array, left, right):
     # pivot 왼쪽은 pivot 이하, 오른쪽은 pivot보다 큰 값으로 partition이 끝났습니다.
     vis.fix(q)
     return q
+
+
+def partition_random(array, left, right):
+    """left..right 범위에서 임의로 고른 원소를 pivot으로 삼아 partition한다."""
+    # 입력 배열이 이미 정렬되어 있더라도 특정 위치만 pivot으로 고르면 한쪽으로 치우칠 수 있습니다.
+    # 매 호출마다 범위 안의 임의 위치를 선택하면 그런 최악의 입력을 만날 가능성을 낮출 수 있습니다.
+    pivot_index = random.randint(left, right)
+    vis.set_pivot(pivot_index)
+
+    # partition()은 pivot이 left에 있다고 가정하므로 선택한 원소를 먼저 왼쪽으로 옮깁니다.
+    vis.move_pivot_to_left(pivot_index, left)
+    if pivot_index != left:
+        array[left], array[pivot_index] = array[pivot_index], array[left]
+
+    # 이후 p와 q를 움직이며 양쪽을 나누는 과정은 기존 partition()을 그대로 사용합니다.
+    return partition(array, left, right)
 
 
 def insertion_sort(array, left, right):
