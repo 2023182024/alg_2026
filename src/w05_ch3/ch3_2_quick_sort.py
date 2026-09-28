@@ -28,6 +28,11 @@ def partition(array, left, right):
     pivot = array[left]
     vis.set_pivot(left)
 
+    # p는 pivot 다음 원소부터 오른쪽으로, q는 배열 끝에서 왼쪽으로 탐색합니다.
+    # 반복문 안에서 먼저 p를 증가시키고 q를 감소시킨 뒤 해당 원소를 확인합니다.
+    p = left
+    q = right + 1
+
     # 아직 원소를 교환하지 않았으므로 pivot은 원래 위치에 있습니다.
     return left
 
