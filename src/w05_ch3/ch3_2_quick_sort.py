@@ -11,6 +11,8 @@ def quick_sort(array):
     if len(array) > 0:
         quick_sort_range(array, 0, len(array) - 1)
 
+    # 가장 바깥쪽 재귀 호출까지 끝나면 배열 전체가 정렬된 상태입니다.
+    vis.finish()
     return array
 
 
