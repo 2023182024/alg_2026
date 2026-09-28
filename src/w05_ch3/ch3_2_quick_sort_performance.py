@@ -1,7 +1,7 @@
 import perf
 
 
-INSERTION_SORT_THRESHOLD = 4
+INSERTION_SORT_THRESHOLD = 8
 
 
 def quick_sort(array):
@@ -79,9 +79,28 @@ def insertion_sort(array, left, right):
 
 
 if __name__ == "__main__":
-    perf.test(quick_sort, 1_000_000)
+    perf.test(quick_sort_final_insertion, 10_000_000)
 
     # 실행 예:
     # python src/w05_ch3/ch3_2_quick_sort_performance.py
     # python src/w05_ch3/ch3_2_quick_sort_performance.py nearly
     # python src/w05_ch3/ch3_2_quick_sort_performance.py reversed
+
+
+'''
+Test Results: (Threshould = 8)
+   Count    Elapsed
+    1000      0.001
+    5000      0.003
+   10000      0.006
+   50000      0.033
+  100000      0.066
+  200000      0.129
+  500000      0.359
+  750000      0.593
+ 1000000      0.817
+ 5000000      5.401
+ 7500000      8.684
+10000000     11.994
+
+'''
