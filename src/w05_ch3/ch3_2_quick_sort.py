@@ -93,6 +93,32 @@ def partition(array, left, right):
     return q
 
 
+def insertion_sort(array, left, right):
+    """array의 left..right 범위를 삽입 정렬한다. right도 정렬 범위에 포함한다."""
+    vis.start_insertion(left, right)
+
+    # #left 하나만 있는 구간은 이미 정렬되어 있으므로, 다음 원소부터 삽입합니다.
+    for index in range(left + 1, right + 1):
+        value = array[index]
+        vis.mark_end(index, pick=True)
+        position = index
+
+        # value보다 큰 값을 한 칸씩 오른쪽으로 밀어 value가 들어갈 자리를 만듭니다.
+        while position > left:
+            vis.compare_for_insertion(position - 1, value)
+            if array[position - 1] <= value:
+                break
+            vis.shift(position - 1, position)
+            array[position] = array[position - 1]
+            position -= 1
+
+        # 비어 있는 position 위치에 처음에 빼 둔 값을 넣습니다.
+        vis.shift(index, position, pick=True)
+        array[position] = value
+
+    vis.finish_insertion(left, right)
+
+
 while va.running():
     data = va.next_data(__file__, data_file=DATA_FILE)
     array = list(data.array)
