@@ -2,6 +2,7 @@ import pyvisalgo as va
 
 
 DATA_FILE = "data/n_log_n_sort.json"
+INSERTION_SORT_THRESHOLD = 4
 
 vis = va.visualizer("quick_sort")
 
@@ -23,6 +24,13 @@ def quick_sort_range(array, left, right):
         return
     if left == right:
         vis.single(left)
+        return
+
+    # 작은 구간은 partition을 반복하기보다 삽입 정렬로 바로 처리합니다.
+    if right - left + 1 <= INSERTION_SORT_THRESHOLD:
+        vis.push(left, right)
+        insertion_sort(array, left, right)
+        vis.pop()
         return
 
     vis.push(left, right)
