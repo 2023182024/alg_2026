@@ -57,7 +57,13 @@ def partition(array, left, right):
             break
         vis.accept_right(q)
 
-    # 아직 원소를 교환하지 않았으므로 pivot은 원래 위치에 있습니다.
+    # p와 q가 아직 교차하지 않았다면, 두 값은 서로 잘못된 쪽에 있습니다.
+    # p의 큰 값은 오른쪽으로, q의 작은 값은 왼쪽으로 보내기 위해 교환합니다.
+    if p < q:
+        vis.swap(p, q)
+        array[p], array[q] = array[q], array[p]
+
+    # pivot을 제자리로 옮기는 마지막 교환은 다음 단계에서 처리합니다.
     return left
 
 
