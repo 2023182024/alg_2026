@@ -25,6 +25,11 @@ def quick_sort_range(array, left, right):
 
     vis.push(left, right)
     pivot_index = partition(array, left, right)
+
+    # pivot은 제자리가 확정되었으므로, 양쪽 범위만 다시 quick sort 합니다.
+    quick_sort_range(array, left, pivot_index - 1)
+    quick_sort_range(array, pivot_index + 1, right)
+
     vis.pop()
 
 
