@@ -33,35 +33,42 @@ def partition(array, left, right):
     p = left
     q = right + 1
 
-    # p는 pivot 다음부터 오른쪽으로 이동하며 pivot보다 큰 값을 찾습니다.
-    # pivot 이하인 값은 왼쪽 부분 배열에 있어도 되므로 그대로 통과합니다.
+    # p와 q가 교차할 때까지 양쪽을 탐색하고, 잘못된 쪽의 두 값을 교환합니다.
     while True:
-        p += 1
-        vis.set_p(p)
-        if p > right:
-            break
-        # p는 오른쪽으로 이동하므로, 비교 표식도 오른쪽 방향으로 애니메이션합니다.
-        vis.compare_with_pivot(p, increasing=True)
-        if array[p] > pivot:
-            break
-        vis.accept_left(p)
+        # p는 pivot 다음부터 오른쪽으로 이동하며 pivot보다 큰 값을 찾습니다.
+        # pivot 이하인 값은 왼쪽 부분 배열에 있어도 되므로 그대로 통과합니다.
+        while True:
+            p += 1
+            vis.set_p(p)
+            if p > right:
+                break
+            # p는 오른쪽으로 이동하므로, 비교 표식도 오른쪽 방향으로 애니메이션합니다.
+            vis.compare_with_pivot(p, increasing=True)
+            if array[p] > pivot:
+                break
+            vis.accept_left(p)
 
-    # q는 배열 끝에서 왼쪽으로 이동하며 pivot보다 작거나 같은 값을 찾습니다.
-    # pivot보다 큰 값은 오른쪽 부분 배열에 있어도 되므로 그대로 통과합니다.
-    while True:
-        q -= 1
-        vis.set_q(q)
-        # q는 왼쪽으로 이동하므로, 비교 표식도 왼쪽 방향으로 애니메이션합니다.
-        vis.compare_with_pivot(q, increasing=False)
-        if array[q] <= pivot:
-            break
-        vis.accept_right(q)
+        # q는 배열 끝에서 왼쪽으로 이동하며 pivot보다 작거나 같은 값을 찾습니다.
+        # pivot보다 큰 값은 오른쪽 부분 배열에 있어도 되므로 그대로 통과합니다.
+        while True:
+            q -= 1
+            vis.set_q(q)
+            # q는 왼쪽으로 이동하므로, 비교 표식도 왼쪽 방향으로 애니메이션합니다.
+            vis.compare_with_pivot(q, increasing=False)
+            if array[q] <= pivot:
+                break
+            vis.accept_right(q)
 
-    # p와 q가 아직 교차하지 않았다면, 두 값은 서로 잘못된 쪽에 있습니다.
-    # p의 큰 값은 오른쪽으로, q의 작은 값은 왼쪽으로 보내기 위해 교환합니다.
-    if p < q:
+        # p와 q가 만났거나 교차하면, 더 바꿀 두 원소가 없습니다.
+        if p >= q:
+            vis.cross(p, q)
+            break
+
+        # p의 큰 값은 오른쪽으로, q의 작은 값은 왼쪽으로 보내기 위해 교환합니다.
         vis.swap(p, q)
         array[p], array[q] = array[q], array[p]
+        vis.accept_left(p)
+        vis.accept_right(q)
 
     # pivot을 제자리로 옮기는 마지막 교환은 다음 단계에서 처리합니다.
     return left
