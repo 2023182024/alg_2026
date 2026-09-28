@@ -46,6 +46,17 @@ def partition(array, left, right):
             break
         vis.accept_left(p)
 
+    # q는 배열 끝에서 왼쪽으로 이동하며 pivot보다 작거나 같은 값을 찾습니다.
+    # pivot보다 큰 값은 오른쪽 부분 배열에 있어도 되므로 그대로 통과합니다.
+    while True:
+        q -= 1
+        vis.set_q(q)
+        # q는 왼쪽으로 이동하므로, 비교 표식도 왼쪽 방향으로 애니메이션합니다.
+        vis.compare_with_pivot(q, increasing=False)
+        if array[q] <= pivot:
+            break
+        vis.accept_right(q)
+
     # 아직 원소를 교환하지 않았으므로 pivot은 원래 위치에 있습니다.
     return left
 
