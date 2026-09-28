@@ -33,6 +33,19 @@ def partition(array, left, right):
     p = left
     q = right + 1
 
+    # p는 pivot 다음부터 오른쪽으로 이동하며 pivot보다 큰 값을 찾습니다.
+    # pivot 이하인 값은 왼쪽 부분 배열에 있어도 되므로 그대로 통과합니다.
+    while True:
+        p += 1
+        vis.set_p(p)
+        if p > right:
+            break
+        # p는 오른쪽으로 이동하므로, 비교 표식도 오른쪽 방향으로 애니메이션합니다.
+        vis.compare_with_pivot(p, increasing=True)
+        if array[p] > pivot:
+            break
+        vis.accept_left(p)
+
     # 아직 원소를 교환하지 않았으므로 pivot은 원래 위치에 있습니다.
     return left
 
