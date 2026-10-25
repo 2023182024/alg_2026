@@ -3,6 +3,23 @@
 import pyvisalgo as va
 
 
+def getRoot(vertex):
+    """부모를 따라 재귀 호출하여 루트를 찾고, 배열을 바꾸지 않고 반환한다."""
+    vis.root_enter(vertex, roots)
+    # 자기 자신을 가리키면 더 따라갈 부모가 없습니다.
+    # 자기 자신을 반환하는 것이 재귀 호출의 종료 조건입니다.
+    if roots[vertex] == vertex:
+        vis.root_return(vertex, vertex, roots, is_root=True)
+        return vertex
+    # 루트가 아니면 부모 정점의 루트를 다시 묻습니다.
+    # 예를 들어 3 -> 2 -> 1 -> 0이면 getRoot(0)에서 0을 반환하고,
+    # 기다리던 getRoot(1), getRoot(2), getRoot(3)도 차례로 0을 반환합니다.
+    root = getRoot(roots[vertex])
+    vis.root_return(vertex, root, roots, shortcut=False)
+    # 지금은 반환만 합니다. roots[vertex]를 바꾸는 경로 압축은 나중에 추가합니다.
+    return root
+
+
 def kruskal(count, edges):
     """정점 수와 간선 목록을 받아 (선택한 간선 목록, 비용 합)을 반환한다."""
     global roots
