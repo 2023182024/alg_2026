@@ -20,10 +20,12 @@ def kruskal(count, edges):
     edges = sorted(edges, key=lambda edge: edge[2])
     vis.sort_edges(edges)
 
-    # 먼저 가장 가벼운 간선 두 개를 차례로 선택해 봅니다.
+    # 이번에는 가장 가벼운 간선을 정점 수만큼 선택해 봅니다.
     # for문에서 각 간선의 두 끝점과 가중치를 나누어 받습니다.
-    # 아직 루트 비교가 없는 중간 구현입니다. 반복 횟수를 늘리기 전 검사가 필요합니다.
-    for u, v, weight in edges[:2]:
+    # 정점 n개의 사이클 없는 그래프는 간선이 최대 n-1개입니다.
+    # 따라서 n개를 무조건 선택하면 사이클이 생깁니다. 이 코드는 아직 정답이 아닙니다.
+    # 가벼운 순서만으로는 부족하며, 선택 전에 두 루트를 비교해야 합니다.
+    for u, v, weight in edges[:count]:
         if vis.stopped():
             break
         vis.begin_edge(u, v)
@@ -48,7 +50,7 @@ if __name__ == "__main__":
         # Kruskal은 선의 화면상 길이가 아니라 weight를 비교합니다.
         vis.setup(data)
         mst, total_cost = kruskal(count, data.edges)
-        # 지금은 간선 두 개까지만 선택합니다. 아직 최소 신장 트리를 완성한 것은 아닙니다.
+        # 사이클을 검사하지 않은 중간 결과입니다. 최소 신장 트리가 아닐 수 있습니다.
         print("선택한 간선:", mst)
         print("현재 비용:", total_cost)
         # 정점 드래그: 배치 변경, 빈 곳 드래그: 화면 이동, 휠: 확대/축소.
