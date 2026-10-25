@@ -28,10 +28,13 @@ def kruskal(count, edges):
 
     # 선택한 간선은 두 끝점과 가중치를 함께 기록합니다.
     # 지금은 선택한 간선이 없으므로 첫 간선 하나만으로는 사이클이 생기지 않습니다.
-    # 따라서 이번 단계에서만 루트 비교를 생략합니다. 비용 누적은 다음 단계입니다.
+    # 따라서 이번 단계에서만 루트 비교를 생략합니다.
     # 반복 선택을 구현할 때는 두 끝점의 루트를 먼저 비교해야 합니다.
     # 같으면 제외하고, 다르면 목록에 추가하고 비용을 누적한 뒤 union합니다.
     mst.append((u, v, weight))
+    # 선택을 확정한 간선의 가중치만 총비용에 더합니다.
+    total_cost += weight
+    vis.select_edge(u, v, weight, total_cost)
 
     return mst, total_cost
 
