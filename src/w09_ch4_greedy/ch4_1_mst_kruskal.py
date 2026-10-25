@@ -13,6 +13,13 @@ def kruskal(count, edges):
     # mst에는 선택한 간선을, total_cost에는 그 가중치 합을 저장합니다.
     mst = []
     total_cost = 0
+
+    # 간선의 세 번째 값인 weight를 기준으로 오름차순 정렬합니다.
+    # sorted는 새 목록을 만들므로 원본 데이터의 간선 순서는 바뀌지 않습니다.
+    # 같은 가중치를 가진 간선끼리는 원래 입력 순서가 유지됩니다.
+    edges = sorted(edges, key=lambda edge: edge[2])
+    vis.sort_edges(edges)
+
     return mst, total_cost
 
 
