@@ -5,6 +5,7 @@ import pyvisalgo as va
 
 def kruskal(count, edges):
     """정점 수와 간선 목록을 받아 (선택한 간선 목록, 비용 합)을 반환한다."""
+    global roots
     # 정점 번호는 0부터 count - 1까지입니다.
     # 각 간선 (u, v, weight)는 두 정점과 연결 비용을 나타냅니다.
     # 무방향 간선이므로 (v, u, weight)를 다시 저장하지 않습니다.
@@ -13,6 +14,13 @@ def kruskal(count, edges):
     # mst에는 선택한 간선을, total_cost에는 그 가중치 합을 저장합니다.
     mst = []
     total_cost = 0
+
+    # 처음에는 간선을 선택하지 않았으므로 각 정점이 독립된 집합입니다.
+    # 자기 자신을 가리키는 정점이 집합의 대표(루트)입니다.
+    # 이후 getRoot와 union에서 함께 사용할 수 있도록 전역 배열로 준비합니다.
+    # 이 부모 관계는 집합 관리용이며, 실제 선택 간선 목록인 mst와는 다릅니다.
+    roots = [i for i in range(count)]
+    vis.start(roots)
 
     # 간선의 세 번째 값인 weight를 기준으로 오름차순 정렬합니다.
     # sorted는 새 목록을 만들므로 원본 데이터의 간선 순서는 바뀌지 않습니다.
