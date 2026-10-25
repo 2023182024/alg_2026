@@ -59,8 +59,14 @@ def kruskal(count, edges):
         root_u = getRoot(u)
         root_v = getRoot(v)
         vis.check_roots(u, v, root_u, root_v, roots)
+        # 두 대표가 같으면 선택한 간선들로 이미 연결된 두 정점입니다.
+        # 여기에 간선을 더하면 사이클이 생기므로 목록과 비용에 반영하지 않습니다.
+        # 단, 아직 union이 없어 집합은 합쳐지지 않습니다. 다음 단계에서 연결합니다.
+        if root_u == root_v:
+            vis.reject_edge(u, v, weight)
+            continue
         # 선택한 간선은 두 끝점과 가중치를 함께 기록합니다.
-        # 완성된 구현에서는 먼저 두 루트를 비교해 같은 집합의 간선은 제외합니다.
+        # 서로 다른 집합을 잇는 간선만 선택하고 비용을 누적합니다.
         mst.append((u, v, weight))
         # 선택을 확정한 간선의 가중치만 총비용에 더합니다.
         total_cost += weight
