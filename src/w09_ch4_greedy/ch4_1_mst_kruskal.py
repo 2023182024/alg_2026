@@ -20,6 +20,12 @@ def kruskal(count, edges):
     edges = sorted(edges, key=lambda edge: edge[2])
     vis.sort_edges(edges)
 
+    # 정렬된 목록의 첫 간선이 가장 가벼운 후보입니다.
+    # 세 값을 각각 두 끝점 u, v와 가중치 weight로 나누어 받습니다.
+    # 목록에서 삭제하는 것이 아니며, 아직 mst에 추가하지도 않습니다.
+    u, v, weight = edges[0]
+    vis.begin_edge(u, v)
+
     return mst, total_cost
 
 
