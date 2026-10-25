@@ -20,6 +20,19 @@ def getRoot(vertex):
     return root
 
 
+def union(root_u, root_v):
+    """서로 다른 두 집합의 대표를 받아 하나의 집합으로 합친다."""
+    # 일반 정점이 아니라 getRoot가 반환한 대표끼리 연결해야 합니다.
+    # 대표가 아닌 정점의 부모만 바꾸면 기존 집합의 일부만 옮겨질 수 있습니다.
+    # 작은 번호를 대표로 남기는 것은 집합을 관리하는 규칙일 뿐,
+    # 간선의 가중치가 작거나 MST의 비용이 더 작다는 뜻은 아닙니다.
+    if root_u < root_v:
+        roots[root_v] = root_u
+    else:
+        roots[root_u] = root_v
+    vis.union_roots(root_u, root_v, roots)
+
+
 def kruskal(count, edges):
     """정점 수와 간선 목록을 받아 (선택한 간선 목록, 비용 합)을 반환한다."""
     global roots
