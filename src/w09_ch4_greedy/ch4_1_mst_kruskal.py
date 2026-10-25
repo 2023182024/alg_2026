@@ -39,7 +39,6 @@ def kruskal(count, edges):
     # 정점 번호는 0부터 count - 1까지입니다.
     # 각 간선 (u, v, weight)는 두 정점과 연결 비용을 나타냅니다.
     # 무방향 간선이므로 (v, u, weight)를 다시 저장하지 않습니다.
-    # 사이클 검사는 다음 단계에서 추가합니다.
     # 아직 선택한 간선이 없으므로 빈 목록과 비용 0에서 시작합니다.
     # mst에는 선택한 간선을, total_cost에는 그 가중치 합을 저장합니다.
     mst = []
@@ -58,23 +57,22 @@ def kruskal(count, edges):
     edges = sorted(edges, key=lambda edge: edge[2])
     vis.sort_edges(edges)
 
-    # 이번에는 가장 가벼운 간선을 정점 수만큼 선택해 봅니다.
+    # 이번에는 가장 가벼운 후보를 정점 수만큼 검사합니다.
     # for문에서 각 간선의 두 끝점과 가중치를 나누어 받습니다.
     # 정점 n개의 사이클 없는 그래프는 간선이 최대 n-1개입니다.
-    # 따라서 n개를 무조건 선택하면 사이클이 생깁니다. 이 코드는 아직 정답이 아닙니다.
-    # 가벼운 순서만으로는 부족하며, 선택 전에 두 루트를 비교해야 합니다.
+    # 무조건 선택하는 대신 두 대표를 비교해 같은 집합의 간선은 제외합니다.
+    # 따라서 count개 후보를 검사해도 실제 선택한 간선 수는 더 적을 수 있습니다.
     for u, v, weight in edges[:count]:
         if vis.stopped():
             break
         vis.begin_edge(u, v)
         # 현재 후보의 양 끝점이 각각 어느 집합에 속하는지 대표를 구합니다.
-        # 아직 union이 없으므로 모든 정점은 처음의 독립된 집합 상태입니다.
+        # 이전에 선택한 간선에 따른 집합 합치기가 이 탐색 결과에 반영됩니다.
         root_u = getRoot(u)
         root_v = getRoot(v)
         vis.check_roots(u, v, root_u, root_v, roots)
         # 두 대표가 같으면 선택한 간선들로 이미 연결된 두 정점입니다.
         # 여기에 간선을 더하면 사이클이 생기므로 목록과 비용에 반영하지 않습니다.
-        # 단, 아직 union이 없어 집합은 합쳐지지 않습니다. 다음 단계에서 연결합니다.
         if root_u == root_v:
             vis.reject_edge(u, v, weight)
             continue
@@ -84,6 +82,9 @@ def kruskal(count, edges):
         # 선택을 확정한 간선의 가중치만 총비용에 더합니다.
         total_cost += weight
         vis.select_edge(u, v, weight, total_cost)
+        # 간선을 확정한 뒤 두 집합을 합쳐 다음 간선의 사이클 검사에 반영합니다.
+        # 이 호출이 없으면 이미 연결한 두 정점도 다른 집합으로 잘못 판단합니다.
+        union(root_u, root_v)
 
     return mst, total_cost
 
@@ -99,7 +100,7 @@ if __name__ == "__main__":
         # Kruskal은 선의 화면상 길이가 아니라 weight를 비교합니다.
         vis.setup(data)
         mst, total_cost = kruskal(count, data.edges)
-        # 사이클을 검사하지 않은 중간 결과입니다. 최소 신장 트리가 아닐 수 있습니다.
+        # 아직 앞의 count개 후보만 검사합니다. 전체 후보를 순회하는 것은 다음 단계입니다.
         print("선택한 간선:", mst)
         print("현재 비용:", total_cost)
         # 정점 드래그: 배치 변경, 빈 곳 드래그: 화면 이동, 휠: 확대/축소.
