@@ -54,6 +54,11 @@ def kruskal(count, edges):
         if vis.stopped():
             break
         vis.begin_edge(u, v)
+        # 현재 후보의 양 끝점이 각각 어느 집합에 속하는지 대표를 구합니다.
+        # 아직 union이 없으므로 모든 정점은 처음의 독립된 집합 상태입니다.
+        root_u = getRoot(u)
+        root_v = getRoot(v)
+        vis.check_roots(u, v, root_u, root_v, roots)
         # 선택한 간선은 두 끝점과 가중치를 함께 기록합니다.
         # 완성된 구현에서는 먼저 두 루트를 비교해 같은 집합의 간선은 제외합니다.
         mst.append((u, v, weight))
