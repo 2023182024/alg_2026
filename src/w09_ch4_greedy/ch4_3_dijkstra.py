@@ -30,13 +30,15 @@ def build_graph(count, edges):
 
 
 def dijkstra(count, edges, start=0):
-    """누적 거리가 가장 작은 후보를 꺼내며 이웃의 거리 후보를 갱신한다."""
+    """시작점에서 각 정점까지의 최단 거리 배열을 반환한다."""
     # 정점 하나의 최단 거리를 확정할 때마다 그 정점에 연결된 이웃들을 검사합니다.
     # 전체 간선 목록 대신 graph[vertex].items()로 이웃과 가중치를 얻도록 준비합니다.
     graph = build_graph(count, edges)
     # completed는 시작점부터의 최단 거리를 확정한 정점들의 집합입니다.
     # 같은 정점을 다시 확정하거나 후보로 추가하지 않도록 소속 여부를 검사합니다.
     completed = set()
+    # 확정 전의 거리는 무한대로 둡니다. 도달할 수 없는 정점은 끝까지 무한대입니다.
+    distances = [float("inf")] * count
     # heapdict: weights[vertex_to] = [시작점부터의 누적 거리, vertex_from]
     # 딕셔너리처럼 정점 번호를 key로 등록·조회하면서 value가 최소인 후보를 꺼냅니다.
     # value의 첫 항목인 비용부터 비교하고, 같으면 다음 항목인 출발점을 비교합니다.
@@ -60,8 +62,9 @@ def dijkstra(count, edges, start=0):
         vertex, (cost, origin) = weights.popitem()
         # 가중치가 0 이상이므로 최소 후보를 꺼낸 순간 그 거리가 최단 거리입니다.
         completed.add(vertex)
+        distances[vertex] = cost
         # 정점이 확정되면 할 일:
-        # 1. 최단 거리를 확정합니다. 거리들을 합산하지 않습니다.
+        # 1. 최단 거리를 기록합니다. 거리들을 합산하지 않습니다.
         # 2. 주위 정점들에 대하여 다음을 수행합니다.
         #    - 이미 최단 거리가 확정된 정점이면 무시합니다.
         #    - 후보에 없으면 누적 거리와 이전 정점을 기록하여 새로 등록합니다.
@@ -101,7 +104,8 @@ def dijkstra(count, edges, start=0):
                 vis.keep_candidate(neighbor, *old_candidate, candidate_cost, vertex)
 
     # 후보가 소진되면 시작점에서 도달할 수 있는 정점들의 탐색이 끝납니다.
-    # 확정 결과의 저장과 출력은 다음 단계에서 추가합니다.
+    # 도달 불가 정점의 거리는 inf인 상태로 남습니다.
+    return distances
 
 
 if __name__ == "__main__":
@@ -112,8 +116,16 @@ if __name__ == "__main__":
         count = len(data.vertices)
         start = 0
         vis.setup(data, start)
-        dijkstra(count, data.edges, start)
-        # 아직 최종 거리나 경로를 출력하지 않습니다.
+        distances = dijkstra(count, data.edges, start)
+        # 사용자가 중간에 중지했다면 부분 결과를 최종 결과로 표시하지 않습니다.
+        if not vis.stopped():
+            print("시작점:", start, data.vertices[start])
+            for vertex, distance in enumerate(distances):
+                if distance == float("inf"):
+                    print(f"#{vertex} {data.vertices[vertex]}: 도달 불가")
+                    continue
+                print(f"#{vertex} {data.vertices[vertex]}: 거리 {distance}")
+            vis.finish_paths()
         # H: 설명 숨김, L: 배치 전환, 정점 드래그: 배치, 빈 곳 드래그: 이동.
         # 휠: 그래프 확대/축소 또는 오른쪽 후보 배열 스크롤.
         # R: 재실행, D: 다음 데이터, Esc: 종료.
