@@ -73,7 +73,12 @@ def prim(count, edges, start=0):
             if vis.stopped():
                 break
             vis.inspect_edge(vertex, neighbor, edge_cost)
-            # 다음 단계에서 이미 내륙인 이웃 제외, 새 후보 추가, 기존 후보 갱신을 구현합니다.
+            # 이미 트리에 포함된 정점은 후보로 다시 등록하지 않습니다.
+            # 이 간선을 추가하면 내륙의 두 정점을 잇게 되어 사이클이 생깁니다.
+            if neighbor in completed:
+                vis.ignore_inland(vertex, neighbor)
+                continue
+            # 다음 단계에서 새 후보 추가와 기존 후보 갱신을 구현합니다.
         # 아직 새 후보를 추가하지 않으므로 시작점의 이웃만 검사한 뒤 끝납니다.
 
 
