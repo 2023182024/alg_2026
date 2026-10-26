@@ -78,8 +78,15 @@ def prim(count, edges, start=0):
             if neighbor in completed:
                 vis.ignore_inland(vertex, neighbor)
                 continue
-            # 다음 단계에서 새 후보 추가와 기존 후보 갱신을 구현합니다.
-        # 아직 새 후보를 추가하지 않으므로 시작점의 이웃만 검사한 뒤 끝납니다.
+            # Prim은 현재 내륙에서 이웃으로 가는 간선 하나의 비용을 비교합니다.
+            # 시작점부터의 누적 거리를 구하는 것이 아니므로 cost를 더하지 않습니다.
+            candidate_cost = edge_cost
+            if neighbor not in weights:
+                # 처음 발견한 이웃은 비용과 연결 출발점을 함께 후보로 등록합니다.
+                # 아직 내륙은 아니며, 이후 최소 후보로 꺼냈을 때 확정됩니다.
+                weights[neighbor] = [candidate_cost, vertex]
+                vis.add_candidate(neighbor, candidate_cost, vertex, weights)
+            # 다음 단계에서 기존 후보를 더 짧은 연결로 갱신하는 처리를 구현합니다.
 
 
 if __name__ == "__main__":
