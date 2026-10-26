@@ -1,4 +1,4 @@
-"""정수와 배열 원소에 최소 힙 연산을 적용한다."""
+"""최소 힙 연산과 부호 반전을 이용한 최댓값 추출을 실습한다."""
 
 import heapq
 
@@ -16,6 +16,11 @@ if __name__ == "__main__":
         # 원소가 [비용, 이름] 배열이면 비용부터 비교하고, 같으면 이름을 비교합니다.
         # 예: [2, 'A'] < [2, 'B'] < [5, 'A']. 이름을 무시하는 것이 아닙니다.
         # 같은 위치에서 비교되는 항목들은 서로 비교 가능한 자료형이어야 합니다.
+        if data.element_type == "negated":
+            # a > b이면 -a < -b입니다. 큰 원래 값이 작은 저장값이 됩니다.
+            # 초기 원소뿐 아니라 이후 추가할 원소도 같은 규칙으로 변환합니다.
+            heap = [-value for value in heap]
+            pushes = [-value for value in pushes]
         vis.setup(data, heap)
         print("준비:", heap)
 
@@ -46,7 +51,11 @@ if __name__ == "__main__":
             # heap[0]으로 읽기만 하는 것과 달리 실제로 원소를 제거합니다.
             value = heapq.heappop(heap)
             vis.pop(heap, value)
-            print("pop 반환:", value, "남은 힙:", heap)
+            if data.element_type == "negated":
+                # 최소 저장값의 부호를 복원하면 원래 값의 최댓값입니다.
+                print("pop 반환:", value, "원래 값:", -value, "남은 힙:", heap)
+            else:
+                print("pop 반환:", value, "남은 힙:", heap)
 
         # Space: 일시정지, .: 한 단계, Enter: 현재 연산까지 빠르게 진행.
         # R: 다시 실행, D: 다음 데이터, 1-9: 속도, +/-: 글씨, Esc: 종료.
