@@ -27,6 +27,7 @@ from .visualizers.closest_pair import ClosestPairVisualizer
 from .visualizers.graph_representation import GraphRepresentationVisualizer
 from .visualizers.kruskal import KruskalVisualizer
 from .visualizers.prim import PrimVisualizer
+from .visualizers.dijkstra import DijkstraVisualizer
 from .visualizers.heap_queue import HeapQueueVisualizer
 from .visualizers.knight import KnightsTourVisualizer
 
@@ -71,6 +72,8 @@ def visualizer(name, enabled=True):
         return KruskalVisualizer("Kruskal")
     if name == "prim":
         return PrimVisualizer("Prim")
+    if name == "dijkstra":
+        return DijkstraVisualizer("Dijkstra")
     if name == "heap_queue":
         return HeapQueueVisualizer("heapq")
     if name == "binary_tree_array":
@@ -111,6 +114,7 @@ __all__ = [
     "KnightsTourVisualizer",
     "KruskalVisualizer",
     "PrimVisualizer",
+    "DijkstraVisualizer",
     "MergeSortVisualizer",
     "MergeBattleVisualizer",
     "MergeSortHeroWarsVisualizer",

@@ -10,6 +10,11 @@ from .graph_representation import GraphRepresentationVisualizer
 
 
 class PrimVisualizer(GraphRepresentationVisualizer):
+    algorithm_name = "Prim"
+    heading = "Prim: Minimum Spanning Tree"
+    description = "가장 적은 비용으로 연결할 후보를 꺼내 내륙을 넓힌다."
+    cost_heading = "비용"
+    origin_heading = "출발"
     panel_left = 1300
     panel_width = 220
     cost_offset = 76
@@ -36,10 +41,13 @@ class PrimVisualizer(GraphRepresentationVisualizer):
         self.value_change = None
         self.candidate_scroll = 0
         self.preview_neighbors = set()
-        self.msg_phase("Prim: 준비")
+        self._setup_messages(start)
+        self._update_stats()
+
+    def _setup_messages(self, start):
+        self.msg_phase(self.algorithm_name + ": 준비")
         self.msg_action(f"시작점 #{start}를 비용 0인 후보로 등록한다.")
         self.msg_detail("최소 연결 비용의 후보를 꺼내 내륙으로 확정하고 그 주변을 검사한다.")
-        self._update_stats()
 
     def _running_hint(self):
         return "Space: 일시정지  .: 한 단계  Enter: 다음 동작  H: 설명  L: 배치  R: 재실행  D: 데이터  Esc: 종료"
@@ -139,43 +147,55 @@ class PrimVisualizer(GraphRepresentationVisualizer):
         self.focus_vertex = vertex
         self.operation = "시작점 추가" if starting else "새 후보 추가"
         self.comparison = None
-        self.msg_phase("Prim: " + self.operation)
-        self.msg_action(f"#{vertex}를 비용 {cost}, 출발점 #{origin}인 후보로 추가한다.")
-        self.msg_detail("루프 전에 시작점을 비용 0으로 등록한다." if starting else
-                        "아직 후보에 없던 점이다. 현재 내륙에서 연결할 간선을 기록한다.")
+        self._added_messages(vertex, cost, origin, starting)
         self._animate_heap(weights, vertex, "add")
         self.wait(450)
         self.section_end()
+
+    def _added_messages(self, vertex, cost, origin, starting):
+        self.msg_phase(self.algorithm_name + ": " + self.operation)
+        self.msg_action(f"#{vertex}를 비용 {cost}, 출발점 #{origin}인 후보로 추가한다.")
+        self.msg_detail("루프 전에 시작점을 비용 0으로 등록한다." if starting else
+                        "아직 후보에 없던 점이다. 현재 내륙에서 연결할 간선을 기록한다.")
 
     def take_candidate(self, vertex, cost, origin, weights, total_cost):
         self.focus_vertex = self.current_vertex = vertex
         self.active = None if vertex == origin else tuple(sorted((vertex, origin)))
         self.operation = "최소 비용 후보 꺼내기"
         self.comparison = None
-        self.msg_phase("Prim: " + self.operation)
-        self.msg_action(f"비용 {cost}인 #{vertex}를 꺼내 내륙으로 확정한다.")
-        self.msg_detail("시작점의 비용 0은 실제 간선이 아니므로 MST에 간선을 추가하지 않는다." if vertex == origin else
-                        f"출발점 #{origin}에서 #{vertex}로 연결한 간선을 MST에 넣는다.")
+        self._taken_messages(vertex, cost, origin)
         self._animate_heap(weights, vertex, "take")
         if not self.stopped():
             self.inland.append(vertex)
             if vertex != origin:
                 self.selected_edges.add(tuple(sorted((vertex, origin))))
-            self.total_cost = total_cost
+            self._record_confirmation(vertex, cost, origin, total_cost)
         self._update_stats()
         self.wait(650)
         self.section_end()
+
+    def _taken_messages(self, vertex, cost, origin):
+        self.msg_phase(self.algorithm_name + ": " + self.operation)
+        self.msg_action(f"비용 {cost}인 #{vertex}를 꺼내 내륙으로 확정한다.")
+        self.msg_detail("시작점의 비용 0은 실제 간선이 아니므로 MST에 간선을 추가하지 않는다." if vertex == origin else
+                        f"출발점 #{origin}에서 #{vertex}로 연결한 간선을 MST에 넣는다.")
+
+    def _record_confirmation(self, vertex, cost, origin, total_cost):
+        self.total_cost = total_cost
 
     def inspect_edge(self, origin, vertex, distance):
         self.focus_vertex = vertex
         self.active = tuple(sorted((origin, vertex)))
         self.operation = "이웃 검사"
         self.comparison = None
-        self.msg_phase("Prim: 이웃 검사")
-        self.msg_action(f"내륙 #{origin}의 이웃 #{vertex}를 검사한다. 간선 비용은 {distance}이다.")
-        self.msg_detail("이미 내륙인지, 새 후보인지, 기존 후보보다 더 짧게 연결되는지 확인한다.")
+        self._inspection_messages(origin, vertex, distance)
         self._reveal_candidate(vertex)
         self.wait(450)
+
+    def _inspection_messages(self, origin, vertex, distance):
+        self.msg_phase(self.algorithm_name + ": 이웃 검사")
+        self.msg_action(f"내륙 #{origin}의 이웃 #{vertex}를 검사한다. 간선 비용은 {distance}이다.")
+        self.msg_detail("이미 내륙인지, 새 후보인지, 기존 후보보다 더 짧게 연결되는지 확인한다.")
 
     def show_neighbors(self, vertex, neighbors):
         """개별 검사 전에 이번에 살펴볼 이웃들과 간선을 함께 보여준다."""
@@ -185,29 +205,39 @@ class PrimVisualizer(GraphRepresentationVisualizer):
         self.active = None
         self.comparison = None
         self.operation = "주변점 확인"
-        self.msg_phase("Prim: " + self.operation)
-        self.msg_action(f"방금 내륙이 된 #{vertex}의 주변 {len(neighbors)}개 점을 확인한다.")
-        self.msg_detail("이미 내륙: 무시 / 새 점: 추가 / 더 짧음: 갱신 / 같거나 더 김: 기존 후보 유지")
+        self._neighbor_messages(vertex, neighbors)
         try:
             self.wait(1200)
             self.section_end()
         finally:
             self.preview_neighbors.clear()
 
+    def _neighbor_messages(self, vertex, neighbors):
+        self.msg_phase(self.algorithm_name + ": " + self.operation)
+        self.msg_action(f"방금 내륙이 된 #{vertex}의 주변 {len(neighbors)}개 점을 확인한다.")
+        self.msg_detail("이미 내륙: 무시 / 새 점: 추가 / 더 짧음: 갱신 / 같거나 더 김: 기존 후보 유지")
+
     def ignore_inland(self, origin, vertex):
         self.operation = "이미 내륙: 무시"
-        self.msg_phase("Prim: " + self.operation)
-        self.msg_action(f"#{vertex}는 이미 내륙이므로 무시한다.")
-        self.msg_detail("확정한 정점은 후보에 다시 넣지 않는다.")
+        self._ignored_messages(vertex)
         self.wait(700)
         self.section_end()
+
+    def _ignored_messages(self, vertex):
+        self.msg_phase(self.algorithm_name + ": " + self.operation)
+        self.msg_action(f"#{vertex}는 이미 내륙이므로 무시한다.")
+        self.msg_detail("확정한 정점은 후보에 다시 넣지 않는다.")
 
     def _compare(self, vertex, old_cost, old_origin, cost, origin):
         self.focus_vertex = vertex
         self.active = tuple(sorted((vertex, origin)))
         self._reveal_candidate(vertex)
         self.comparison = (vertex, old_cost, old_origin, cost, origin)
-        self.msg_phase("Prim: 연결 비용 비교")
+        self._comparison_messages(vertex, old_cost, old_origin, cost, origin)
+        self.wait(1000)
+
+    def _comparison_messages(self, vertex, old_cost, old_origin, cost, origin):
+        self.msg_phase(self.algorithm_name + ": 연결 비용 비교")
         if cost < old_cost:
             self.msg_action(f"#{vertex}까지 갈 때, #{old_origin}에서 출발하는 비용 {old_cost}보다 #{origin}에서 출발하는 비용 {cost} 쪽이 더 작다.")
         elif cost == old_cost:
@@ -215,7 +245,6 @@ class PrimVisualizer(GraphRepresentationVisualizer):
         else:
             self.msg_action(f"#{vertex}까지 #{origin}에서 가는 {cost}보다 기존 #{old_origin}에서 가는 {old_cost}가 더 작다.")
         self.msg_detail("목적지는 같다. 현재 내륙의 어느 점에서 연결할지 비교하며, 시작점부터의 누적 거리를 비교하는 것은 아니다.")
-        self.wait(1000)
 
     def _animate_update_values(self, vertex, old_cost, old_origin, cost, origin):
         self.value_change = {"vertex": vertex, "old_cost": old_cost, "old_origin": old_origin,
@@ -238,23 +267,29 @@ class PrimVisualizer(GraphRepresentationVisualizer):
     def update_candidate(self, vertex, old_cost, old_origin, cost, origin, weights):
         self.operation = "더 짧음: 갱신"
         self._compare(vertex, old_cost, old_origin, cost, origin)
-        self.msg_phase("Prim: " + self.operation)
-        self.msg_action(f"#{vertex}의 비용을 {old_cost}에서 {cost}로, 출발점을 #{origin}로 갱신한다.")
-        self.msg_detail("비용과 연결 출발점을 함께 바꾼다. 같은 정점의 후보는 하나만 유지한다.")
+        self._updated_messages(vertex, old_cost, cost, origin)
         self._animate_update_values(vertex, old_cost, old_origin, cost, origin)
         self.comparison = None
         self._animate_heap(weights, vertex, "update")
         self.wait(650)
         self.section_end()
 
+    def _updated_messages(self, vertex, old_cost, cost, origin):
+        self.msg_phase(self.algorithm_name + ": " + self.operation)
+        self.msg_action(f"#{vertex}의 비용을 {old_cost}에서 {cost}로, 출발점을 #{origin}로 갱신한다.")
+        self.msg_detail("비용과 연결 출발점을 함께 바꾼다. 같은 정점의 후보는 하나만 유지한다.")
+
     def keep_candidate(self, vertex, old_cost, old_origin, cost, origin):
         self.operation = "기존 후보 유지: 무시"
         self._compare(vertex, old_cost, old_origin, cost, origin)
-        self.msg_phase("Prim: " + self.operation)
-        self.msg_action(f"새 비용 {cost}가 기존 비용 {old_cost}보다 작지 않으므로 무시한다.")
-        self.msg_detail(f"#{vertex}의 비용 {old_cost}와 출발점 #{old_origin}를 그대로 유지한다.")
+        self._kept_messages(vertex, old_cost, old_origin, cost)
         self.wait(750)
         self.section_end()
+
+    def _kept_messages(self, vertex, old_cost, old_origin, cost):
+        self.msg_phase(self.algorithm_name + ": " + self.operation)
+        self.msg_action(f"새 비용 {cost}가 기존 비용 {old_cost}보다 작지 않으므로 무시한다.")
+        self.msg_detail(f"#{vertex}의 비용 {old_cost}와 출발점 #{old_origin}를 그대로 유지한다.")
 
     def finish_mst(self, count, mst, total_cost):
         self.current_vertex = self.focus_vertex = None
@@ -372,7 +407,7 @@ class PrimVisualizer(GraphRepresentationVisualizer):
     def _draw_candidates(self):
         self.text("후보 heap", self.panel_left, 30, 26, bold=True)
         self._fit_text(self.operation, self.panel_left, 74, self.panel_width, 18)
-        for label, offset in (("정점", 10), ("비용", self.cost_offset), ("출발", self.origin_offset)):
+        for label, offset in (("정점", 10), (self.cost_heading, self.cost_offset), (self.origin_heading, self.origin_offset)):
             self.text(label, self.panel_left + offset, 110, 17, colors.TEXT_MUTED)
         previous = self.screen.get_clip()
         self.screen.set_clip(self.view.rect(self.panel_left - 40, self.candidate_top, self.panel_width + 40,
@@ -433,8 +468,8 @@ class PrimVisualizer(GraphRepresentationVisualizer):
         self._animate_layout()
         self.hits = []
         if not self.hidden:
-            self.text("Prim: Minimum Spanning Tree", 45, 25, 32, bold=True)
-            self.text("가장 적은 비용으로 연결할 후보를 꺼내 내륙을 넓힌다.", 45, 83, 21, colors.TEXT_MUTED)
+            self.text(self.heading, 45, 25, 32, bold=True)
+            self.text(self.description, 45, 83, 21, colors.TEXT_MUTED)
         self._draw_graph()
         self._draw_candidates()
         self._draw_inland()
