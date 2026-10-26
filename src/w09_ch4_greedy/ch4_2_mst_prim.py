@@ -15,6 +15,18 @@ def build_graph(count, edges):
     return graph
 
 
+def pop_smallest(weights):
+    """비어 있지 않은 후보 리스트에서 최소 비용 후보 하나를 찾아 제거한다."""
+    smallest = 0
+    for index in range(1, len(weights)):
+        # 후보의 첫 항목인 비용만 비교합니다. 정점 번호나 출발점을 비교하지 않습니다.
+        if weights[index][0] < weights[smallest][0]:
+            smallest = index
+    # min으로 읽기만 하는 것과 달리, 찾은 위치의 후보를 리스트에서 제거합니다.
+    # 선형 탐색과 리스트 중간 삭제를 합쳐 한 번 꺼내는 데 O(후보 수)가 걸립니다.
+    return weights.pop(smallest)
+
+
 def prim(count, edges, start=0):
     """정점 수, 무방향 간선 목록, 시작 정점을 받아 최소 신장 트리를 구성한다."""
     # Prim은 정점 하나를 확정할 때마다 그 정점에 연결된 이웃들을 검사합니다.
@@ -35,7 +47,20 @@ def prim(count, edges, start=0):
     weights.append([0, start, start])
     vis.add_candidate(start, 0, start,
                       {vertex: [cost, origin] for cost, vertex, origin in weights}, starting=True)
-    # 이후 단계에서 최소 비용 후보 선택과 이웃 검사를 구현합니다.
+    # 후보가 남아 있는 동안 가장 저렴하게 연결할 수 있는 정점을 하나씩 꺼냅니다.
+    while weights:
+        if vis.stopped():
+            break
+        cost, vertex, origin = pop_smallest(weights)
+        # 가장 저렴한 후보를 꺼내면 곧바로 내륙으로 확정합니다.
+        completed.add(vertex)
+        # 시작점의 비용 0은 실제 간선이 아니므로 간선 목록과 비용 합에서 제외합니다.
+        if vertex != origin:
+            mst.append((origin, vertex, cost))
+            total_cost += cost
+        vis.take_candidate(vertex, cost, origin,
+                           {v: [c, o] for c, v, o in weights}, total_cost)
+        # 아직 이웃 검사가 없어 시작점만 확정하고 끝납니다.
 
 
 if __name__ == "__main__":
