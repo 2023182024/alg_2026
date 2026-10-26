@@ -4,7 +4,7 @@ import pyvisalgo as va
 
 
 def getRoot(vertex):
-    """부모를 따라 재귀 호출하여 루트를 찾고, 배열을 바꾸지 않고 반환한다."""
+    """부모를 따라 루트를 찾고, 돌아오면서 대표로 바로 연결한다."""
     vis.root_enter(vertex, roots)
     # 자기 자신을 가리키면 더 따라갈 부모가 없습니다.
     # 자기 자신을 반환하는 것이 재귀 호출의 종료 조건입니다.
@@ -15,8 +15,24 @@ def getRoot(vertex):
     # 예를 들어 3 -> 2 -> 1 -> 0이면 getRoot(0)에서 0을 반환하고,
     # 기다리던 getRoot(1), getRoot(2), getRoot(3)도 차례로 0을 반환합니다.
     root = getRoot(roots[vertex])
-    vis.root_return(vertex, root, roots, shortcut=False)
-    # 지금은 반환만 합니다. roots[vertex]를 바꾸는 경로 압축은 나중에 추가합니다.
+    # 이전 버전은 root를 반환하기만 해서 부모 사슬이 그대로 남았습니다.
+    # 이제 재귀 호출에서 돌아올 때 최종 대표를 roots[vertex]에도 기록합니다.
+    # 여기서 root는 바로 위 부모가 아니라, 재귀 탐색으로 찾은 최종 대표입니다.
+    #
+    # 예: roots = [0, 0, 1, 2]에서 getRoot(3)을 호출하면
+    #     호출: 3 -> 2 -> 1 -> 0 (각 호출은 안쪽 호출의 결과를 기다립니다.)
+    #     반환: 0을 받은 getRoot(1)이 roots[1] = 0을 기록합니다. (이미 0)
+    #           그다음 getRoot(2)가 roots[2] = 0을 기록합니다. (1 -> 0)
+    #           마지막 getRoot(3)이 roots[3] = 0을 기록합니다. (2 -> 0)
+    #     결과: roots = [0, 0, 0, 0]
+    # 따라서 다음 getRoot(3)은 3 -> 0으로 바로 가서 호출 단계가 줄어듭니다.
+    # 이번 탐색에서는 기존 경로를 따라가야 하지만, 이후 탐색에 쓸 shortcut을 남깁니다.
+    #
+    # 같은 집합 안에서 최종 대표를 직접 가리키게 할 뿐 집합을 합치는 것은 아닙니다.
+    # 대표와 MST 결과는 바뀌지 않으며, 실제 선택 간선 목록인 mst도 수정하지 않습니다.
+    # 이렇게 지나온 경로의 부모 연결을 짧게 만드는 것이 경로 압축입니다.
+    roots[vertex] = root
+    vis.root_return(vertex, root, roots)
     return root
 
 
