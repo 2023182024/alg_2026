@@ -1,4 +1,4 @@
-"""Prim의 최소 신장 트리 구현을 위한 실행 구조를 준비한다."""
+"""heapdict로 최소 연결 비용 후보를 관리하며 Prim의 최소 신장 트리를 구한다."""
 
 from heapdict import heapdict
 
@@ -18,7 +18,7 @@ def build_graph(count, edges):
 
 
 def prim(count, edges, start=0):
-    """정점 수, 무방향 간선 목록, 시작 정점을 받아 최소 신장 트리를 구성한다."""
+    """시작점의 연결 요소에 대한 (선택 간선 목록, 비용 합)을 반환한다."""
     # Prim은 정점 하나를 확정할 때마다 그 정점에 연결된 이웃들을 검사합니다.
     # 전체 간선 목록 대신 graph[vertex].items()로 이웃과 가중치를 얻도록 준비합니다.
     graph = build_graph(count, edges)
@@ -99,6 +99,10 @@ def prim(count, edges, start=0):
                 # 같거나 더 비싼 연결이면 아무것도 대입하지 않고 기존 후보를 유지합니다.
                 vis.keep_candidate(neighbor, *old_candidate, candidate_cost, vertex)
 
+    # 후보가 소진되면 시작점에서 도달할 수 있는 정점들의 탐색이 끝납니다.
+    # 연결 그래프는 간선 count-1개의 MST이고, 아니면 시작점의 연결 요소만 연결합니다.
+    return mst, total_cost
+
 
 if __name__ == "__main__":
     vis = va.visualizer("prim")
@@ -110,7 +114,17 @@ if __name__ == "__main__":
         vis.setup(data, start)
         vis.msg_action("Prim을 실행할 그래프와 시작점을 준비한다.")
         vis.msg_detail("아직 후보를 등록하거나 간선을 선택하지 않은 상태이다.")
-        prim(count, data.edges, start)
+        mst, total_cost = prim(count, data.edges, start)
+        # 사용자가 중간에 중지했다면 부분 결과를 최종 결과로 표시하지 않습니다.
+        if not vis.stopped():
+            print("시작점:", start, data.vertices[start])
+            print("선택한 간선:", mst)
+            if len(mst) == count - 1:
+                print("최소 신장 트리 비용:", total_cost)
+            else:
+                print("전체 MST 없음: 시작점에서 도달하지 못한 정점이 있습니다.")
+                print("시작점의 연결 요소 비용:", total_cost)
+            vis.finish_mst(count, mst, total_cost)
         # H: 설명 숨김, L: 배치 전환, 정점 드래그: 배치, 빈 곳 드래그: 이동.
         # 휠: 그래프 확대/축소 또는 오른쪽 후보 배열 스크롤.
         # R: 재실행, D: 다음 데이터, Esc: 종료.
