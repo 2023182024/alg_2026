@@ -1,4 +1,4 @@
-"""정수 배열을 최소 힙으로 만들고 원소를 추가한 뒤 최솟값을 꺼낸다."""
+"""정수와 배열 원소에 최소 힙 연산을 적용한다."""
 
 import heapq
 
@@ -12,6 +12,10 @@ if __name__ == "__main__":
     while va.running():
         data = va.next_data(__file__)
         heap = data.array.copy()
+        pushes = data.pushes
+        # 원소가 [비용, 이름] 배열이면 비용부터 비교하고, 같으면 이름을 비교합니다.
+        # 예: [2, 'A'] < [2, 'B'] < [5, 'A']. 이름을 무시하는 것이 아닙니다.
+        # 같은 위치에서 비교되는 항목들은 서로 비교 가능한 자료형이어야 합니다.
         vis.setup(data, heap)
         print("준비:", heap)
 
@@ -23,7 +27,7 @@ if __name__ == "__main__":
         vis.heapify(heap)
         print("heapify:", heap)
 
-        for value in data.pushes:
+        for value in pushes:
             if vis.stopped():
                 break
             # 맨 뒤에 추가한 뒤 부모보다 작으면 위로 올립니다(up-heap).
