@@ -23,6 +23,8 @@ def build_graph(count, edges):
     # 간선이 없는 정점도 빈 딕셔너리를 가지며, 정점 번호는 0부터 count-1입니다.
     graph = {u: {} for u in range(count)}
     for u, v, weight in edges:
+        if weight < 0:
+            raise ValueError("Dijkstra는 음수 가중치가 없는 그래프에서 사용합니다.")
         # 무방향 간선 하나를 양쪽 정점의 이웃 정보에 모두 등록합니다.
         graph[u][v] = weight
         graph[v][u] = weight
@@ -31,6 +33,8 @@ def build_graph(count, edges):
 
 def dijkstra(count, edges, start=0):
     """시작점에서 각 정점까지의 (최단 거리 배열, 이전 정점 배열)을 반환한다."""
+    if not 0 <= start < count:
+        raise ValueError("시작 정점 번호가 범위를 벗어났습니다.")
     # 정점 하나의 최단 거리를 확정할 때마다 그 정점에 연결된 이웃들을 검사합니다.
     # 전체 간선 목록 대신 graph[vertex].items()로 이웃과 가중치를 얻도록 준비합니다.
     graph = build_graph(count, edges)
