@@ -1,6 +1,6 @@
 """Prim의 최소 신장 트리 구현을 위한 실행 구조를 준비한다."""
 
-import heapq
+from heapdict import heapdict
 
 import pyvisalgo as va
 
@@ -29,38 +29,35 @@ def prim(count, edges, start=0):
     # 내륙 정점의 집합과 실제 선택한 간선의 목록은 서로 다른 정보입니다.
     mst = []
     total_cost = 0  # 선택한 간선들의 가중치 합이며, 아직 선택한 간선은 없습니다.
-    # 이전 딕셔너리: weights = {vertex_to: [weight, vertex_from], ...}
-    # 현재 최소 힙: weights = [[weight, vertex_to, vertex_from], ...]
-    # 비용을 첫 항목에 두어 heapq가 가장 저렴한 후보를 루트에 유지하도록 합니다.
-    # 비용이 같으면 정점 번호, 그것도 같으면 출발 정점 번호를 비교합니다.
-    # 힙의 배열 순서는 정점 번호 순서가 아니므로 weights[vertex]로 조회할 수 없습니다.
-    # 현재 후보 수를 k라고 하면, 딕셔너리 + min은 최소 후보 추출에 O(k)가 걸리지만
-    # heapq는 최소 후보 추출과 새 후보 추가를 각각 O(log k)에 처리합니다.
-    # 반면 딕셔너리에서 평균 O(1)이던 특정 정점의 후보 조회는 힙에서 O(k)입니다.
-    # Prim은 더 짧은 연결을 발견하면 기존 후보의 비용과 출발점을 갱신해야 합니다.
-    # 힙 안의 비용을 그냥 바꾸면 부모·자식의 대소 관계가 깨질 수 있으므로,
-    # 최소 후보를 빨리 꺼낼 수 있다는 장점과 정점별 조회·갱신의 불편함을 구분해야 합니다.
+    # 이전 heapq: weights = [[weight, vertex_to, vertex_from], ...]
+    # 현재 heapdict: weights[vertex_to] = [weight, vertex_from]
+    # 딕셔너리처럼 정점 번호를 key로 등록·조회하면서 value가 최소인 후보를 꺼냅니다.
+    # value의 첫 항목인 비용부터 비교하고, 같으면 다음 항목인 출발점을 비교합니다.
+    # value 전체가 같을 때 정점 번호나 등록 순서에 따른 추출 순서는 가정하지 않습니다.
+    # 현재 후보 수 k에 대해 key 조회는 평균 O(1), 등록·갱신·최소 추출은 O(log k)입니다.
+    # 같은 key에 새 value를 대입하면 해당 후보를 교체하고 힙의 위치도 조정합니다.
+    # weights[vertex][0]을 직접 수정하면 이 조정이 일어나지 않으므로 피해야 합니다.
     # Prim의 비용은 시작점부터의 누적 거리가 아니라 연결할 간선 하나의 비용입니다.
-    weights = []
+    weights = heapdict()
     # 시작점은 연결 간선 없이 출발하므로 비용 0, 출발점은 자기 자신으로 둡니다.
     # 이 항목은 실제 간선이 아니며, 시작점은 아직 내륙으로 확정하지 않았습니다.
-    heapq.heappush(weights, [0, start, start])
-    vis.add_candidate(start, 0, start,
-                      {vertex: [cost, origin] for cost, vertex, origin in weights}, starting=True)
+    weights[start] = [0, start]
+    vis.add_candidate(start, 0, start, weights, starting=True)
     # 후보가 남아 있는 동안 가장 저렴하게 연결할 수 있는 정점을 하나씩 꺼냅니다.
     while weights:
         if vis.stopped():
             break
-        # 선형 탐색 대신 루트의 최소 후보를 꺼내고 O(log 후보 수)에 힙을 복구합니다.
-        cost, vertex, origin = heapq.heappop(weights)
+        # popitem()은 최소 value를 가진 (key, value)를 반환하면서 후보를 제거합니다.
+        # 일반 dict.popitem()의 마지막 등록 항목 추출과는 의미가 다릅니다.
+        # key는 정점 번호, value는 [비용, 출발점]이므로 두 단계로 풀어 받습니다.
+        vertex, (cost, origin) = weights.popitem()
         # 가장 저렴한 후보를 꺼내면 곧바로 내륙으로 확정합니다.
         completed.add(vertex)
         # 시작점의 비용 0은 실제 간선이 아니므로 간선 목록과 비용 합에서 제외합니다.
         if vertex != origin:
             mst.append((origin, vertex, cost))
             total_cost += cost
-        vis.take_candidate(vertex, cost, origin,
-                           {v: [c, o] for c, v, o in weights}, total_cost)
+        vis.take_candidate(vertex, cost, origin, weights, total_cost)
         # 아직 이웃 검사가 없어 시작점만 확정하고 끝납니다.
 
 
