@@ -1,4 +1,4 @@
-"""정수 배열을 heapify하여 최소 힙으로 바꾼다."""
+"""정수 배열을 최소 힙으로 만들고 원소를 추가한다."""
 
 import heapq
 
@@ -22,6 +22,16 @@ if __name__ == "__main__":
         heapq.heapify(heap)
         vis.heapify(heap)
         print("heapify:", heap)
+
+        for value in data.pushes:
+            if vis.stopped():
+                break
+            # 맨 뒤에 추가한 뒤 부모보다 작으면 위로 올립니다(up-heap).
+            # 부모의 인덱스는 (child - 1) // 2이며, 루트까지 최대 O(log n)입니다.
+            # append만 하면 힙 조건이 깨질 수 있으므로 heappush를 사용합니다.
+            heapq.heappush(heap, value)
+            vis.push(heap, value)
+            print("push:", value, "→", heap)
 
         # Space: 일시정지, .: 한 단계, Enter: 현재 연산까지 빠르게 진행.
         # R: 다시 실행, D: 다음 데이터, 1-9: 속도, +/-: 글씨, Esc: 종료.
