@@ -122,9 +122,17 @@ if __name__ == "__main__":
         # Kruskal은 선의 화면상 길이가 아니라 weight를 비교합니다.
         vis.setup(data)
         mst, total_cost = kruskal(count, data.edges)
-        # 연결된 그래프라면 MST가, 연결되지 않았다면 각 연결 요소의 신장 트리가 남습니다.
-        print("선택한 간선:", mst)
-        print("현재 비용:", total_cost)
+        if not vis.stopped():
+            print("선택한 간선:", mst)
+            # 사이클 없이 n-1개를 선택했다면 모든 정점을 연결한 MST입니다.
+            # 후보가 소진되어도 개수가 부족하면 전체 그래프는 연결되지 않았습니다.
+            if len(mst) == count - 1:
+                print("최소 신장 트리 비용:", total_cost)
+            else:
+                print("전체 최소 신장 트리 없음: 그래프가 연결되어 있지 않습니다.")
+                # 각 연결 요소 안에서 구한 MST들의 모음이 최소 신장 숲입니다.
+                print("최소 신장 숲 비용:", total_cost)
+            vis.finish_mst(count, mst, total_cost)
         # 정점 드래그: 배치 변경, 빈 곳 드래그: 화면 이동, 휠: 확대/축소.
         # H: 설명 숨김, L: 배치 전환, R: 재실행, D: 다음 데이터, Esc: 종료.
         vis.wait()
