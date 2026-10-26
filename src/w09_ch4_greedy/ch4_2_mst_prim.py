@@ -86,7 +86,15 @@ def prim(count, edges, start=0):
                 # 아직 내륙은 아니며, 이후 최소 후보로 꺼냈을 때 확정됩니다.
                 weights[neighbor] = [candidate_cost, vertex]
                 vis.add_candidate(neighbor, candidate_cost, vertex, weights)
-            # 다음 단계에서 기존 후보를 더 짧은 연결로 갱신하는 처리를 구현합니다.
+            else:
+                old_cost, old_origin = weights[neighbor]
+                if candidate_cost < old_cost:
+                    # 더 저렴한 간선으로 연결할 수 있다면 비용과 출발점을 함께 바꿉니다.
+                    # 새 리스트를 key에 대입해야 heapdict가 힙의 위치도 다시 조정합니다.
+                    # weights[neighbor][0]만 바꾸면 힙 조건을 유지할 수 없습니다.
+                    weights[neighbor] = [candidate_cost, vertex]
+                    vis.update_candidate(neighbor, old_cost, old_origin,
+                                         candidate_cost, vertex, weights)
 
 
 if __name__ == "__main__":
