@@ -95,6 +95,11 @@ def prim(count, edges, start=0):
                     weights[neighbor] = [candidate_cost, vertex]
                     vis.update_candidate(neighbor, old_cost, old_origin,
                                          candidate_cost, vertex, weights)
+                else:
+                    # 같거나 더 비싼 연결은 기존 후보보다 유리하지 않습니다.
+                    # 동률인 경우에도 기존 비용과 출발점을 그대로 유지합니다.
+                    vis.keep_candidate(neighbor, old_cost, old_origin,
+                                       candidate_cost, vertex)
 
 
 if __name__ == "__main__":
