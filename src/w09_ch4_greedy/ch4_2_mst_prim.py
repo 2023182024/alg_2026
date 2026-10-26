@@ -3,10 +3,24 @@
 import pyvisalgo as va
 
 
+def build_graph(count, edges):
+    """무방향 간선 목록을 정점별 이웃과 가중치의 딕셔너리로 바꾼다."""
+    # graph[u]는 u의 이웃을 key로, 연결 간선의 가중치를 value로 갖습니다.
+    # 간선이 없는 정점도 빈 딕셔너리를 가지며, 정점 번호는 0부터 count-1입니다.
+    graph = {u: {} for u in range(count)}
+    for u, v, weight in edges:
+        # 무방향 간선 하나를 양쪽 정점의 이웃 정보에 모두 등록합니다.
+        graph[u][v] = weight
+        graph[v][u] = weight
+    return graph
+
+
 def prim(count, edges, start=0):
     """정점 수, 무방향 간선 목록, 시작 정점을 받아 최소 신장 트리를 구성한다."""
+    # Prim은 정점 하나를 확정할 때마다 그 정점에 연결된 이웃들을 검사합니다.
+    # 전체 간선 목록 대신 graph[vertex].items()로 이웃과 가중치를 얻도록 준비합니다.
+    graph = build_graph(count, edges)
     # 이후 단계에서 후보 등록, 최소 비용 후보 선택, 이웃 검사를 구현합니다.
-    pass
 
 
 if __name__ == "__main__":
