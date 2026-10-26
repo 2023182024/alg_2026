@@ -81,25 +81,23 @@ def prim(count, edges, start=0):
             # Prim은 현재 내륙에서 이웃으로 가는 간선 하나의 비용을 비교합니다.
             # 시작점부터의 누적 거리를 구하는 것이 아니므로 cost를 더하지 않습니다.
             candidate_cost = edge_cost
-            if neighbor not in weights:
-                # 처음 발견한 이웃은 비용과 연결 출발점을 함께 후보로 등록합니다.
-                # 아직 내륙은 아니며, 이후 최소 후보로 꺼냈을 때 확정됩니다.
+            # 결과로 보면 후보를 바꾸지 않거나, 새 비용과 출발점을 대입하거나 둘뿐입니다.
+            # 새 후보 등록과 기존 후보 갱신은 같은 대입으로 처리할 수 있습니다.
+            old_candidate = weights.get(neighbor)
+            if old_candidate is None or candidate_cost < old_candidate[0]:
+                # or는 왼쪽이 참이면 오른쪽을 평가하지 않습니다.
+                # 따라서 후보가 없어 None인 경우에도 old_candidate[0]을 읽지 않습니다.
+                # 새 리스트를 대입해야 heapdict가 힙의 위치도 다시 조정합니다.
                 weights[neighbor] = [candidate_cost, vertex]
-                vis.add_candidate(neighbor, candidate_cost, vertex, weights)
-            else:
-                old_cost, old_origin = weights[neighbor]
-                if candidate_cost < old_cost:
-                    # 더 저렴한 간선으로 연결할 수 있다면 비용과 출발점을 함께 바꿉니다.
-                    # 새 리스트를 key에 대입해야 heapdict가 힙의 위치도 다시 조정합니다.
-                    # weights[neighbor][0]만 바꾸면 힙 조건을 유지할 수 없습니다.
-                    weights[neighbor] = [candidate_cost, vertex]
-                    vis.update_candidate(neighbor, old_cost, old_origin,
-                                         candidate_cost, vertex, weights)
+                # 아래 분기는 추가와 갱신을 서로 다른 애니메이션으로 표시하기 위한 것입니다.
+                if old_candidate is None:
+                    vis.add_candidate(neighbor, candidate_cost, vertex, weights)
                 else:
-                    # 같거나 더 비싼 연결은 기존 후보보다 유리하지 않습니다.
-                    # 동률인 경우에도 기존 비용과 출발점을 그대로 유지합니다.
-                    vis.keep_candidate(neighbor, old_cost, old_origin,
-                                       candidate_cost, vertex)
+                    vis.update_candidate(neighbor, *old_candidate,
+                                         candidate_cost, vertex, weights)
+            else:
+                # 같거나 더 비싼 연결이면 아무것도 대입하지 않고 기존 후보를 유지합니다.
+                vis.keep_candidate(neighbor, *old_candidate, candidate_cost, vertex)
 
 
 if __name__ == "__main__":
