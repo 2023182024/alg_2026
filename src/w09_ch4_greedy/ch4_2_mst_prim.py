@@ -27,7 +27,15 @@ def prim(count, edges, start=0):
     # 내륙 정점의 집합과 실제 선택한 간선의 목록은 서로 다른 정보입니다.
     mst = []
     total_cost = 0  # 선택한 간선들의 가중치 합이며, 아직 선택한 간선은 없습니다.
-    # 이후 단계에서 후보 등록, 최소 비용 후보 선택, 이웃 검사를 구현합니다.
+    # 후보 하나는 [연결 비용, 도착 정점, 출발 정점]입니다.
+    # Prim의 비용은 시작점부터의 누적 거리가 아니라 연결할 간선 하나의 비용입니다.
+    weights = []
+    # 시작점은 연결 간선 없이 출발하므로 비용 0, 출발점은 자기 자신으로 둡니다.
+    # 이 항목은 실제 간선이 아니며, 시작점은 아직 내륙으로 확정하지 않았습니다.
+    weights.append([0, start, start])
+    vis.add_candidate(start, 0, start,
+                      {vertex: [cost, origin] for cost, vertex, origin in weights}, starting=True)
+    # 이후 단계에서 최소 비용 후보 선택과 이웃 검사를 구현합니다.
 
 
 if __name__ == "__main__":
