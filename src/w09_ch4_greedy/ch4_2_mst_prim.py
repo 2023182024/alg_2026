@@ -16,15 +16,15 @@ def build_graph(count, edges):
 
 
 def pop_smallest(weights):
-    """비어 있지 않은 후보 리스트에서 최소 비용 후보 하나를 찾아 제거한다."""
-    smallest = 0
-    for index in range(1, len(weights)):
-        # 후보의 첫 항목인 비용만 비교합니다. 정점 번호나 출발점을 비교하지 않습니다.
-        if weights[index][0] < weights[smallest][0]:
-            smallest = index
-    # min으로 읽기만 하는 것과 달리, 찾은 위치의 후보를 리스트에서 제거합니다.
-    # 선형 탐색과 리스트 중간 삭제를 합쳐 한 번 꺼내는 데 O(후보 수)가 걸립니다.
-    return weights.pop(smallest)
+    """비어 있지 않은 후보 딕셔너리에서 최소 비용 후보 하나를 찾아 제거한다."""
+    # 딕셔너리를 순회하면 key인 정점 번호가 나옵니다.
+    # key 함수는 각 정점에 저장된 value의 첫 항목, 즉 비용을 비교하도록 합니다.
+    # min(weights)만 쓰면 비용이 아니라 정점 번호가 가장 작은 후보를 고릅니다.
+    vertex = min(weights, key=lambda vertex: weights[vertex][0])
+    cost, origin = weights.pop(vertex)
+    # 후보를 정점별로 찾고 지우기는 쉬워졌지만 최솟값 탐색은 여전히 O(후보 수)입니다.
+    # 호출하는 쪽은 같은 순서로 받을 수 있도록 [비용, 정점, 출발점]을 반환합니다.
+    return [cost, vertex, origin]
 
 
 def prim(count, edges, start=0):
@@ -39,14 +39,17 @@ def prim(count, edges, start=0):
     # 내륙 정점의 집합과 실제 선택한 간선의 목록은 서로 다른 정보입니다.
     mst = []
     total_cost = 0  # 선택한 간선들의 가중치 합이며, 아직 선택한 간선은 없습니다.
-    # 후보 하나는 [연결 비용, 도착 정점, 출발 정점]입니다.
+    # 이전 리스트: weights = [[weight, vertex_to, vertex_from], ...]
+    # 현재 딕셔너리: weights = {vertex_to: [weight, vertex_from], ...}
+    # 도착 정점이 각 원소의 두 번째 항목에서 딕셔너리의 key로 이동했습니다.
+    # key는 도착 정점, value는 [연결 비용, 출발 정점]입니다.
+    # 정점 번호로 기존 후보를 바로 조회하거나 비용과 출발점을 갱신할 수 있습니다.
     # Prim의 비용은 시작점부터의 누적 거리가 아니라 연결할 간선 하나의 비용입니다.
-    weights = []
+    weights = {}
     # 시작점은 연결 간선 없이 출발하므로 비용 0, 출발점은 자기 자신으로 둡니다.
     # 이 항목은 실제 간선이 아니며, 시작점은 아직 내륙으로 확정하지 않았습니다.
-    weights.append([0, start, start])
-    vis.add_candidate(start, 0, start,
-                      {vertex: [cost, origin] for cost, vertex, origin in weights}, starting=True)
+    weights[start] = [0, start]
+    vis.add_candidate(start, 0, start, weights, starting=True)
     # 후보가 남아 있는 동안 가장 저렴하게 연결할 수 있는 정점을 하나씩 꺼냅니다.
     while weights:
         if vis.stopped():
@@ -58,8 +61,7 @@ def prim(count, edges, start=0):
         if vertex != origin:
             mst.append((origin, vertex, cost))
             total_cost += cost
-        vis.take_candidate(vertex, cost, origin,
-                           {v: [c, o] for c, v, o in weights}, total_cost)
+        vis.take_candidate(vertex, cost, origin, weights, total_cost)
         # 아직 이웃 검사가 없어 시작점만 확정하고 끝납니다.
 
 
