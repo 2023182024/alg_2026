@@ -1,4 +1,4 @@
-"""정수 배열을 최소 힙으로 만들고 원소를 추가한다."""
+"""정수 배열을 최소 힙으로 만들고 원소를 추가한 뒤 최솟값을 꺼낸다."""
 
 import heapq
 
@@ -32,6 +32,17 @@ if __name__ == "__main__":
             heapq.heappush(heap, value)
             vis.push(heap, value)
             print("push:", value, "→", heap)
+
+        for _ in range(min(data.pop_count, len(heap))):
+            if vis.stopped():
+                break
+            # 루트의 최솟값을 반환하며 리스트 길이가 하나 줄어듭니다.
+            # 마지막 원소로 루트를 채운 뒤 작은 자식 쪽으로 내려갑니다(down-heap).
+            # 최대 O(log n)이며, 빈 힙에서 호출하면 IndexError가 발생합니다.
+            # heap[0]으로 읽기만 하는 것과 달리 실제로 원소를 제거합니다.
+            value = heapq.heappop(heap)
+            vis.pop(heap, value)
+            print("pop 반환:", value, "남은 힙:", heap)
 
         # Space: 일시정지, .: 한 단계, Enter: 현재 연산까지 빠르게 진행.
         # R: 다시 실행, D: 다음 데이터, 1-9: 속도, +/-: 글씨, Esc: 종료.
