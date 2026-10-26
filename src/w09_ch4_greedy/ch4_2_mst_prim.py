@@ -53,12 +53,28 @@ def prim(count, edges, start=0):
         vertex, (cost, origin) = weights.popitem()
         # 가장 저렴한 후보를 꺼내면 곧바로 내륙으로 확정합니다.
         completed.add(vertex)
+        # 정점이 확정되면 할 일:
+        # 1. 이 정점을 연결한 간선이 있다면 MST에 추가하고 비용을 합산합니다.
+        #    시작점은 연결 간선 없이 출발했으므로 추가할 간선이 없습니다.
+        # 2. 주위 정점들에 대하여 다음을 수행합니다.
+        #    - 이미 내륙인 정점이면 무시합니다.
+        #    - 후보에 없는 정점이면 연결 비용과 출발점을 기록하여 새로 등록합니다.
+        #    - 기존 후보보다 더 짧게 연결할 수 있으면 비용과 출발점을 갱신합니다.
+        #    - 기존 후보와 같거나 더 비싼 연결이면 기존 후보를 유지합니다.
         # 시작점의 비용 0은 실제 간선이 아니므로 간선 목록과 비용 합에서 제외합니다.
         if vertex != origin:
             mst.append((origin, vertex, cost))
             total_cost += cost
         vis.take_candidate(vertex, cost, origin, weights, total_cost)
-        # 아직 이웃 검사가 없어 시작점만 확정하고 끝납니다.
+        vis.show_neighbors(vertex, graph[vertex])
+        # graph[vertex]의 key는 이웃 정점, value는 두 정점을 잇는 간선의 가중치입니다.
+        # items()로 두 값을 함께 받아 현재 내륙에 연결할 수 있는 이웃들을 검사합니다.
+        for neighbor, edge_cost in graph[vertex].items():
+            if vis.stopped():
+                break
+            vis.inspect_edge(vertex, neighbor, edge_cost)
+            # 다음 단계에서 이미 내륙인 이웃 제외, 새 후보 추가, 기존 후보 갱신을 구현합니다.
+        # 아직 새 후보를 추가하지 않으므로 시작점의 이웃만 검사한 뒤 끝납니다.
 
 
 if __name__ == "__main__":
