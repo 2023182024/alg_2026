@@ -1,4 +1,4 @@
-# Week 9: Graphs and Minimum Spanning Trees (9주차: 그래프와 최소 신장 트리)
+# Week 9: Graphs, Minimum Spanning Trees, and Shortest Paths (9주차: 그래프, 최소 신장 트리와 최단 경로)
 
 ## Graph Basics (그래프 기초)
 
@@ -114,3 +114,21 @@
 - array-based Prim (배열 기반 프림): 매 단계에서 미선택 정점의 연결 비용을 선형 탐색으로 비교하는 구현. 인접 행렬과 함께 사용하면 `O(n^2)`
 - heap-based Prim (힙 기반 프림): 인접 목록과 이진 힙을 사용하고 정점별 우선순위를 갱신하는 구현. 연결된 그래프에서 `O((n + m) log n)`
 - Kruskal versus Prim (크루스칼과 프림 비교): Kruskal은 전체 간선 중 다음 간선을 골라 여러 트리를 합치고, Prim은 하나의 트리에서 바깥으로 확장함. 둘 다 MST를 구하지만 간선을 고르는 범위와 관리하는 자료 구조가 다름
+
+## Dijkstra's Algorithm (다익스트라 알고리즘)
+
+- single-source shortest paths (단일 시작점 최단 경로): 하나의 시작점에서 도달 가능한 각 정점까지 가중치 합이 최소인 경로와 그 거리를 구하는 문제
+- Dijkstra's algorithm (다익스트라 알고리즘): 간선 가중치가 0 이상인 그래프에서 누적 거리가 가장 작은 후보를 꺼내 최단 거리를 확정하고 이웃의 거리 후보를 갱신하는 탐욕 알고리즘
+- path weight (경로 가중치): 경로를 따라 이동할 때 지나는 간선들의 가중치 합. 간선 하나의 가중치나 전체 트리의 간선 합과 구별함
+- cumulative distance (누적 거리): 시작점에서 현재 정점까지의 경로 가중치. 현재 정점을 거쳐 이웃으로 가는 새 거리 후보는 `cost + edge_cost`
+- relaxation (완화): 이웃까지의 기존 거리 후보보다 현재 정점을 거치는 경로가 더 짧으면 거리와 이전 정점을 함께 갱신하는 과정. 아직 후보가 없다면 새로 등록함
+- settled vertex (확정 정점): 최소 거리 후보로 꺼내 최단 거리가 확정된 정점. 가중치가 0 이상이므로 아직 확정하지 않은 정점을 경유하여 더 짧아질 수 없음
+- nonnegative edge weights (음수가 아닌 간선 가중치): Dijkstra의 거리 확정에 필요한 조건. 0은 허용하지만 음수는 허용하지 않음. Prim은 음수 가중치가 있어도 MST를 구할 수 있음
+- distance array (거리 배열): 각 정점까지의 최단 거리를 저장하는 배열. 수업 구현은 확정 시 기록하며, 도달하지 못한 정점은 `float("inf")`로 남음
+- predecessor array (이전 정점 배열): `previous[v]`에 최단 경로에서 정점 `v` 바로 앞의 정점을 기록한 배열. 거리만으로는 경로를 복원할 수 없으므로 경로 출력 단계에서 도입함
+- path reconstruction (경로 복원): 목적지부터 이전 정점을 따라가며 시작점까지 역순으로 모은 뒤 뒤집어 실제 이동 순서로 만드는 것. 시작점의 이전 정점은 `None`
+- unreachable vertex (도달 불가 정점): 시작점에서 경로가 없는 정점. 거리 무한대와 이전 정점 `None`으로 나타내며 단순히 비용이 큰 정점과 구별함
+- shortest-path tree (최단 경로 트리): 도달 가능한 정점들의 이전 정점 연결을 모은 트리. 시작점부터 각 정점까지의 경로가 최단이지만 간선 가중치 합이 최소인 MST일 필요는 없음
+- Prim versus Dijkstra (프림과 다익스트라 비교): Prim은 후보를 `edge_cost`로 평가하여 전체 연결 비용을 최소화하고, Dijkstra는 `cost + edge_cost`로 평가하여 시작점부터 각 정점까지의 경로 거리를 최소화함. 후보 관리 구조가 비슷해도 구하는 결과가 다름
+- MST versus shortest-path example (최소 신장 트리와 최단 경로 예): A-B=2, B-C=2, A-C=3이면 MST는 A-B와 B-C로 총비용 4이지만 A에서 C까지의 최단 경로는 거리 3인 A-C임. A의 최단 경로 트리는 A-B와 A-C로 간선 합이 5여도 올바름
+- heap-based Dijkstra (힙 기반 다익스트라): 인접 목록과 정점별 우선순위 갱신을 지원하는 이진 힙으로 구현하면 정점 수 n과 간선 수 m에 대해 `O((n + m) log n)`에 처리함. 시각화와 결과 출력 비용은 별도임
