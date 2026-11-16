@@ -269,13 +269,14 @@ class BaseVisualizer:
 
     def rect(self, x, y, width, height, fill, border=colors.BORDER, radius=8):
         screen_rect = pygame.Rect(self.view.rect(x, y, width, height))
-        pygame.draw.rect(self.screen, fill, screen_rect, border_radius=self.view.length(radius))
+        border_radius = self.view.length(radius) if radius > 0 else 0
+        pygame.draw.rect(self.screen, fill, screen_rect, border_radius=border_radius)
         pygame.draw.rect(
             self.screen,
             border,
             screen_rect,
             width=self.view.length(2),
-            border_radius=self.view.length(radius),
+            border_radius=border_radius,
         )
 
     def _draw_messages(self):
@@ -369,7 +370,7 @@ class BaseVisualizer:
         elif key == pygame.K_r:
             self.requested_action = "restart"
         elif key == pygame.K_d:
-            self.requested_action = "next_data"
+            self.requested_action = "previous_data" if mod & pygame.KMOD_SHIFT else "next_data"
         elif key == pygame.K_a:
             if self.can_show_answer():
                 self.requested_action = "answer"
@@ -428,13 +429,13 @@ class BaseVisualizer:
 
     def _action_hint(self):
         if self.next_dataset_name:
-            return f"R: 다시 실행  Esc: 종료  D: 다음 데이터({self.next_dataset_name})"
-        return "R: 다시 실행  Esc: 종료  D: 다음 데이터"
+            return f"R: 다시 실행  Esc: 종료  D: 다음 데이터({self.next_dataset_name})  Shift+D: 이전 데이터"
+        return "R: 다시 실행  Esc: 종료  D: 다음 데이터  Shift+D: 이전 데이터"
 
     def _running_hint(self):
         if self.next_dataset_name:
-            return f"Space: 일시정지  .: 한 단계  Enter: 다음 구간  D: 다음 데이터({self.next_dataset_name})  1-9: 속도  +/-: 글씨  Esc: 종료"
-        return "Space: 일시정지  .: 한 단계  Enter: 다음 구간  D: 다음 데이터  1-9: 속도  +/-: 글씨  Esc: 종료"
+            return f"Space: 일시정지  .: 한 단계  Enter: 다음 구간  D: 다음 데이터({self.next_dataset_name})  Shift+D: 이전 데이터  1-9: 속도  +/-: 글씨  Esc: 종료"
+        return "Space: 일시정지  .: 한 단계  Enter: 다음 구간  D: 다음 데이터  Shift+D: 이전 데이터  1-9: 속도  +/-: 글씨  Esc: 종료"
 
     def _find_font_path(self):
         for path in FONT_CANDIDATES:
